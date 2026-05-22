@@ -1,0 +1,1910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arvika Chemicals 2034 — Strategic Portfolio Simulation</title>
+<!--
+  FACILITATOR SETUP INSTRUCTIONS:
+  1. Open the Google Sheet (ID: 1HR5cP3S32DUiJsEjy6lgw_KhryVxOR3fX5oCVb1Y_T0)
+     Extensions -> Apps Script -> delete existing code -> paste the doGet script below:
+
+       function doGet(e) {
+         var ss = SpreadsheetApp.openById("1HR5cP3S32DUiJsEjy6lgw_KhryVxOR3fX5oCVb1Y_T0");
+         var sheet = ss.getSheetByName("Submissions");
+         if (!sheet) {
+           sheet = ss.insertSheet("Submissions");
+           var headers = ["team","ts","finalVal","tsr","totalDividends",
+             "revenueCAGR","profitCAGR","valuationCAGR","tsrCAGR",
+             "startH1Rev","startH1Margin","startH1Profit",
+             "startH2Rev","startH2Margin","startH2Profit",
+             "startTotalRevenue","startTotalProfit","portfolioProfile",
+             "h3Count","h3Initiatives","h3Types","h3Selected",
+             "initiatives","h3status","h1Final","h2Final",
+             "r1budget","r1h1","r1h2","r1h3","r1div","r1wc","r1roll","r1divpaid","r1val",
+             "r2budget","r2h1","r2h2","r2h3","r2div","r2wc","r2roll","r2divpaid","r2val",
+             "r3budget","r3h1","r3h2","r3h3","r3div","r3wc","r3roll","r3divpaid","r3val"];
+           sheet.getRange(1,1,1,headers.length).setValues([headers])
+             .setBackground("#0f1117").setFontColor("#c9a84c").setFontWeight("bold");
+           sheet.setFrozenRows(1);
+         }
+         var row = [];
+         var headerVals = sheet.getRange(1,1,1,sheet.getLastColumn()).getValues()[0];
+         for (var i = 0; i < headerVals.length; i++) {
+           row.push(e.parameter[headerVals[i]] || "");
+         }
+         sheet.appendRow(row);
+         return ContentService.createTextOutput("ok");
+       }
+
+  2. Deploy -> New deployment -> Web app -> Execute as: Me -> Who has access: Anyone
+  3. Copy the web app URL -> paste into the GOOGLE_SHEET_URL constant below
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&family=Open+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #0f1117;
+  --paper: #f5f2eb;
+  --cream: #ede9df;
+  --gold: #c9a84c;
+  --gold-light: #e8d4a0;
+  --red: #c0392b;
+  --red-light: #fdf0ee;
+  --amber: #d68910;
+  --amber-light: #fef9ec;
+  --green: #1a7a4a;
+  --green-light: #edf7f2;
+  --blue: #1a4a7a;
+  --blue-light: #edf2f7;
+  --border: rgba(15, 17, 23, 0.12);
+  --shadow: 0 1px 3px rgba(15,17,23,0.06), 0 4px 12px rgba(15,17,23,0.04);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: var(--paper); color: var(--ink); font-family: "Open Sans", sans-serif; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+h1, h2, h3, h4 { font-family: "Roboto", sans-serif; font-weight: 700; letter-spacing: -0.01em; }
+.mono { font-family: "DM Mono", monospace; }
+button { font-family: "Open Sans", sans-serif; cursor: pointer; border: none; background: none; }
+
+/* Header */
+.app-header {
+  position: sticky; top: 0; z-index: 100;
+  background: var(--ink); color: var(--paper);
+  border-bottom: 2px solid var(--gold);
+  padding: 14px 24px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.app-header .title { font-family: "Roboto", sans-serif; font-weight: 700; font-size: 15px; letter-spacing: 0.02em; }
+.app-header .title span { color: var(--gold); }
+.app-header .meta { font-family: "DM Mono", monospace; font-size: 12px; color: var(--gold-light); display: flex; gap: 16px; }
+
+/* Main container */
+.screen {
+  max-width: 1100px; margin: 0 auto; padding: 32px 24px 64px;
+  animation: fadeIn 0.45s ease both;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Hero */
+.hero {
+  background: var(--ink); color: var(--paper);
+  border-radius: 12px; padding: 36px 32px; margin-bottom: 24px;
+  position: relative; overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.hero::before {
+  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--gold) 0%, var(--gold-light) 50%, var(--gold) 100%);
+}
+.hero .eyebrow { font-family: "DM Mono", monospace; font-size: 11px; color: var(--gold); letter-spacing: 0.18em; text-transform: uppercase; margin-bottom: 12px; }
+.hero h1 { font-size: 36px; line-height: 1.15; margin-bottom: 12px; }
+.hero h1 span { color: var(--gold); }
+.hero .sub { font-size: 15px; color: rgba(245, 242, 235, 0.78); max-width: 720px; }
+.hero .meta-row { margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(245,242,235,0.15); display: flex; gap: 28px; flex-wrap: wrap; font-family: "DM Mono", monospace; font-size: 12px; color: var(--gold-light); }
+.hero .meta-row span strong { color: var(--paper); font-weight: 500; }
+
+/* Section heading */
+.section-heading { font-size: 11px; font-family: "DM Mono", monospace; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(15,17,23,0.55); margin-bottom: 10px; }
+
+/* Cards */
+.card {
+  background: #fff; border: 1px solid var(--border); border-radius: 12px;
+  padding: 22px; margin-bottom: 16px; box-shadow: var(--shadow);
+}
+.card h2 { font-size: 18px; margin-bottom: 4px; }
+.card h3 { font-size: 15px; margin-bottom: 8px; }
+.card .card-eyebrow { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(15,17,23,0.5); margin-bottom: 6px; }
+
+/* Portfolio table */
+.portfolio-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+.portfolio-table th, .portfolio-table td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--border); font-size: 14px; }
+.portfolio-table th { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(15,17,23,0.55); font-weight: 500; }
+.portfolio-table td.num { font-family: "DM Mono", monospace; text-align: right; }
+.portfolio-table tfoot td { font-weight: 600; border-bottom: none; border-top: 2px solid var(--ink); padding-top: 14px; }
+
+/* BU pills */
+.pill { display: inline-block; padding: 3px 10px; border-radius: 999px; font-family: "DM Mono", monospace; font-size: 11px; font-weight: 500; letter-spacing: 0.04em; }
+.pill-h1 { background: var(--red-light); color: var(--red); }
+.pill-h2 { background: var(--amber-light); color: var(--amber); }
+.pill-h3 { background: var(--blue-light); color: var(--blue); }
+.pill-success { background: var(--green-light); color: var(--green); }
+.pill-closed { background: rgba(15,17,23,0.06); color: rgba(15,17,23,0.5); }
+
+/* Profile badge */
+.profile-badge {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 12px 18px; border-radius: 10px; margin-top: 16px;
+  font-family: "DM Mono", monospace; font-size: 13px;
+  border: 1px solid var(--border);
+}
+.profile-badge .dot { width: 8px; height: 8px; border-radius: 50%; }
+.profile-strong { background: var(--green-light); color: var(--green); border-color: rgba(26,122,74,0.25); }
+.profile-strong .dot { background: var(--green); }
+.profile-balanced { background: var(--amber-light); color: var(--amber); border-color: rgba(214,137,16,0.25); }
+.profile-balanced .dot { background: var(--amber); }
+.profile-constrained { background: var(--red-light); color: var(--red); border-color: rgba(192,57,43,0.25); }
+.profile-constrained .dot { background: var(--red); }
+
+/* Team input */
+.team-input-wrap { display: flex; gap: 10px; margin-top: 14px; }
+.team-input-wrap input {
+  flex: 1; padding: 14px 16px; border: 1px solid var(--border);
+  border-radius: 8px; font-family: "Open Sans", sans-serif; font-size: 15px;
+  background: #fff; color: var(--ink);
+}
+.team-input-wrap input:focus { outline: 2px solid var(--gold); outline-offset: -1px; }
+
+/* Primary button */
+.btn-primary {
+  background: var(--ink); color: var(--paper);
+  padding: 14px 28px; border-radius: 8px; font-size: 14px; font-weight: 600;
+  letter-spacing: 0.04em; text-transform: uppercase;
+  transition: background 0.18s ease;
+}
+.btn-primary:hover { background: #1f2530; }
+.btn-primary:disabled { background: rgba(15,17,23,0.3); cursor: not-allowed; }
+.btn-gold {
+  background: var(--gold); color: var(--ink);
+  padding: 14px 28px; border-radius: 8px; font-size: 14px; font-weight: 700;
+  letter-spacing: 0.04em; text-transform: uppercase;
+}
+.btn-gold:hover { background: var(--gold-light); }
+
+/* Round indicator */
+.round-indicator { display: flex; gap: 8px; margin-bottom: 24px; }
+.round-dot { flex: 1; height: 4px; border-radius: 2px; background: rgba(15,17,23,0.12); }
+.round-dot.active { background: var(--ink); }
+.round-dot.complete { background: var(--gold); }
+
+/* H3 initiative cards (selection screen) */
+.init-grid { display: grid; gap: 14px; margin-top: 12px; }
+.init-card {
+  background: #fff; border: 1px solid var(--border); border-radius: 10px;
+  padding: 18px 20px; cursor: pointer; transition: all 0.18s ease;
+  position: relative;
+}
+.init-card.selected { border-color: var(--gold); background: #fffdf6; box-shadow: 0 0 0 3px rgba(201,168,76,0.15); }
+.init-card:hover:not(.selected) { border-color: rgba(15,17,23,0.25); }
+.init-card .init-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; gap: 12px; }
+.init-card .init-name { font-family: "Roboto", sans-serif; font-weight: 700; font-size: 15px; }
+.init-card .init-desc { font-size: 13.5px; color: rgba(15,17,23,0.78); line-height: 1.55; }
+.init-card .init-meta { display: flex; gap: 16px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); font-family: "DM Mono", monospace; font-size: 11px; color: rgba(15,17,23,0.6); }
+.init-card .init-meta strong { color: var(--ink); font-weight: 500; }
+.init-card input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--gold); cursor: pointer; }
+
+/* Investment selectors */
+.invest-row { display: grid; grid-template-columns: 110px 1fr; gap: 16px; align-items: center; margin-bottom: 14px; }
+.invest-row .bu-label { font-family: "Roboto", sans-serif; font-weight: 700; font-size: 15px; }
+.invest-row .bu-sub { font-family: "DM Mono", monospace; font-size: 10px; color: rgba(15,17,23,0.55); margin-top: 2px; }
+.invest-options { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.invest-opt {
+  padding: 12px 8px; border: 1px solid var(--border); border-radius: 8px;
+  background: #fff; text-align: center; cursor: pointer;
+  font-family: "DM Mono", monospace; font-size: 12px; transition: all 0.15s ease;
+}
+.invest-opt:hover { border-color: rgba(15,17,23,0.3); }
+.invest-opt.locked { opacity: 0.55; cursor: not-allowed; }
+.invest-opt[data-level="High"].selected { background: var(--green-light); border-color: var(--green); color: var(--green); font-weight: 600; }
+.invest-opt[data-level="Medium"].selected { background: var(--amber-light); border-color: var(--amber); color: var(--amber); font-weight: 600; }
+.invest-opt[data-level="Low"].selected { background: var(--blue-light); border-color: var(--blue); color: var(--blue); font-weight: 600; }
+.invest-opt[data-level="Zero"].selected { background: var(--red-light); border-color: var(--red); color: var(--red); font-weight: 600; }
+.invest-opt.disabled { background: rgba(15,17,23,0.04); color: rgba(15,17,23,0.35); cursor: not-allowed; }
+
+/* Proportion bar */
+.prop-bar { display: flex; height: 28px; border-radius: 6px; overflow: hidden; margin-top: 10px; border: 1px solid var(--border); }
+.prop-seg { display: flex; align-items: center; justify-content: center; font-family: "DM Mono", monospace; font-size: 11px; font-weight: 500; }
+.prop-high { background: var(--green-light); color: var(--green); }
+.prop-medium { background: var(--amber-light); color: var(--amber); }
+.prop-low { background: var(--blue-light); color: var(--blue); }
+
+/* Dividend panel */
+.dividend-panel {
+  background: #fffdf6; border: 1px solid var(--gold-light); border-radius: 10px;
+  padding: 20px; margin-top: 18px;
+  border-left: 4px solid var(--gold);
+}
+.dividend-panel h3 { font-size: 15px; margin-bottom: 4px; }
+.dividend-panel .sub { font-size: 12.5px; color: rgba(15,17,23,0.6); margin-bottom: 14px; }
+.dividend-options { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.div-opt {
+  padding: 14px 12px; border: 1px solid var(--border); border-radius: 8px;
+  background: #fff; cursor: pointer; transition: all 0.15s ease;
+}
+.div-opt:hover { border-color: var(--gold); }
+.div-opt.selected { border-color: var(--gold); background: #fff8e3; box-shadow: 0 0 0 2px rgba(201,168,76,0.2); }
+.div-opt .div-label { font-family: "Roboto", sans-serif; font-weight: 700; font-size: 14px; margin-bottom: 8px; }
+.div-opt .div-detail { font-family: "DM Mono", monospace; font-size: 10.5px; color: rgba(15,17,23,0.65); line-height: 1.55; }
+.div-opt .div-detail strong { color: var(--ink); font-weight: 500; }
+
+/* Active initiatives */
+.active-init-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+.init-chip {
+  padding: 6px 12px; border-radius: 999px; background: var(--blue-light); color: var(--blue);
+  font-family: "DM Mono", monospace; font-size: 11px;
+}
+.init-chip.success { background: var(--green-light); color: var(--green); }
+.init-chip.closed { background: rgba(15,17,23,0.06); color: rgba(15,17,23,0.5); text-decoration: line-through; }
+
+/* Results — BU cards */
+.results-grid { display: grid; gap: 14px; margin-top: 16px; }
+.bu-card { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 22px; box-shadow: var(--shadow); }
+.bu-card .bu-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.bu-card .bu-title { font-family: "Roboto", sans-serif; font-weight: 700; font-size: 16px; }
+.metrics-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 12px; }
+.metric { padding: 10px 0; }
+.metric .label { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(15,17,23,0.55); margin-bottom: 4px; }
+.metric .value { font-family: "DM Mono", monospace; font-size: 22px; font-weight: 500; }
+.metric .delta { font-family: "DM Mono", monospace; font-size: 11px; margin-top: 2px; }
+.delta-up { color: var(--green); }
+.delta-down { color: var(--red); }
+.delta-flat { color: rgba(15,17,23,0.5); }
+
+/* Signal badges */
+.signal { display: inline-block; padding: 8px 14px; border-radius: 8px; font-size: 13px; margin-top: 8px; font-weight: 500; }
+.signal-red { background: var(--red-light); color: var(--red); }
+.signal-amber { background: var(--amber-light); color: var(--amber); }
+.signal-green { background: var(--green-light); color: var(--green); }
+
+/* Wildcard panel */
+.wildcard-panel {
+  border-radius: 12px; padding: 26px 28px; margin-bottom: 18px;
+  color: #fff; position: relative; overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+  animation: wildcardIn 0.6s ease both;
+}
+@keyframes wildcardIn {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1); }
+}
+.wildcard-panel.negative { background: linear-gradient(135deg, #5a1410 0%, var(--red) 100%); }
+.wildcard-panel.positive { background: linear-gradient(135deg, #0d3d24 0%, var(--green) 100%); }
+.wildcard-panel::after {
+  content: "⚡"; position: absolute; right: 20px; top: 50%; transform: translateY(-50%);
+  font-size: 100px; opacity: 0.12;
+}
+.wildcard-panel .wc-header { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 10px; opacity: 0.85; }
+.wildcard-panel h2 { font-size: 22px; margin-bottom: 8px; position: relative; z-index: 2; }
+.wildcard-panel p { font-size: 14px; opacity: 0.92; max-width: 720px; position: relative; z-index: 2; }
+
+/* Revised estimate panel */
+.revised-panel {
+  background: rgba(15,17,23,0.03); border: 1px dashed var(--border);
+  border-radius: 8px; padding: 12px 14px; margin-top: 10px;
+  font-size: 12.5px;
+}
+.revised-panel .rp-label { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(15,17,23,0.55); margin-bottom: 4px; }
+.revised-panel .rp-line { font-family: "DM Mono", monospace; }
+.revised-panel .rp-original { text-decoration: line-through; color: rgba(15,17,23,0.45); }
+.revised-panel .rp-sentiment { margin-top: 4px; font-weight: 500; }
+
+/* Dividend results card */
+.dividend-card {
+  background: #fffdf6; border: 1px solid var(--gold-light); border-radius: 12px;
+  padding: 22px; margin-top: 14px; border-left: 4px solid var(--gold);
+}
+.dividend-card .dc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 10px; }
+
+/* Valuation card */
+.valuation-card {
+  background: var(--ink); color: var(--paper); border-radius: 12px;
+  padding: 26px; margin-top: 14px; position: relative; overflow: hidden;
+}
+.valuation-card::before {
+  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: var(--gold);
+}
+.valuation-card .vc-label { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold); margin-bottom: 4px; }
+.valuation-card .vc-value { font-family: "Roboto", sans-serif; font-weight: 700; font-size: 38px; margin-bottom: 14px; }
+.valuation-card .vc-breakdown { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; padding-top: 14px; border-top: 1px solid rgba(245,242,235,0.18); }
+.valuation-card .vc-cell .lbl { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold-light); margin-bottom: 4px; }
+.valuation-card .vc-cell .val { font-family: "DM Mono", monospace; font-size: 16px; }
+
+/* Validation error */
+.error-msg { background: var(--red-light); color: var(--red); padding: 10px 14px; border-radius: 8px; font-size: 13px; margin-top: 12px; border-left: 3px solid var(--red); }
+.warn-msg { background: var(--amber-light); color: var(--amber); padding: 10px 14px; border-radius: 8px; font-size: 13px; margin-top: 12px; border-left: 3px solid var(--amber); }
+
+/* Game log table */
+.game-log { width: 100%; border-collapse: collapse; font-family: "DM Mono", monospace; font-size: 12px; margin-top: 12px; }
+.game-log th, .game-log td { padding: 10px 8px; border-bottom: 1px solid var(--border); text-align: left; }
+.game-log th { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(15,17,23,0.6); font-weight: 500; }
+.game-log td.num { text-align: right; }
+
+/* Final scorecard */
+.scorecard {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 18px;
+}
+.score-cell { padding: 24px; border-radius: 12px; }
+.score-cell.primary { background: var(--ink); color: var(--paper); }
+.score-cell.secondary { background: #fff; border: 1px solid var(--border); }
+.score-cell.primary::before { content: "PRIMARY"; font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 0.16em; color: var(--gold); display: block; margin-bottom: 6px; }
+.score-cell.secondary::before { content: "SECONDARY"; font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 0.16em; color: rgba(15,17,23,0.5); display: block; margin-bottom: 6px; }
+.score-cell .sc-label { font-family: "Roboto", sans-serif; font-weight: 700; font-size: 14px; margin-bottom: 8px; }
+.score-cell .sc-value { font-family: "Roboto", sans-serif; font-weight: 700; font-size: 30px; }
+.score-cell.primary .sc-value { color: var(--gold-light); }
+.scorecard-note { font-size: 12px; color: rgba(15,17,23,0.6); margin-top: 8px; font-style: italic; }
+
+/* Verdict */
+.verdict-card { padding: 36px 32px; border-radius: 12px; margin-bottom: 20px; }
+.verdict-card.t1 { background: linear-gradient(135deg, #0d3d24 0%, var(--green) 100%); color: #fff; }
+.verdict-card.t2 { background: linear-gradient(135deg, #0a2952 0%, var(--blue) 100%); color: #fff; }
+.verdict-card.t3 { background: linear-gradient(135deg, #7a4d08 0%, var(--amber) 100%); color: #fff; }
+.verdict-card.t4 { background: linear-gradient(135deg, #5a1410 0%, var(--red) 100%); color: #fff; }
+.verdict-card h2 { font-size: 26px; margin-bottom: 12px; }
+.verdict-card p { font-size: 15px; line-height: 1.65; max-width: 800px; opacity: 0.95; }
+
+/* Misc */
+.row-flex { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+.spacer-16 { height: 16px; }
+.spacer-24 { height: 24px; }
+.text-mute { color: rgba(15,17,23,0.6); font-size: 13px; }
+.budget-banner {
+  background: var(--ink); color: var(--paper); padding: 18px 22px; border-radius: 10px; margin-bottom: 14px;
+  display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
+}
+.budget-banner .bb-label { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold); }
+.budget-banner .bb-value { font-family: "Roboto", sans-serif; font-weight: 700; font-size: 26px; }
+.budget-banner .bb-side { font-family: "DM Mono", monospace; font-size: 12px; color: var(--gold-light); }
+
+.submit-status { margin-top: 14px; padding: 12px 16px; border-radius: 8px; font-size: 13px; }
+.submit-status.success { background: var(--green-light); color: var(--green); }
+.submit-status.warn { background: var(--amber-light); color: var(--amber); }
+
+@media (max-width: 720px) {
+  .hero h1 { font-size: 26px; }
+  .hero { padding: 24px 20px; }
+  .invest-row { grid-template-columns: 1fr; }
+  .invest-options { grid-template-columns: repeat(2, 1fr); }
+  .dividend-options { grid-template-columns: 1fr; }
+  .metrics-row { grid-template-columns: 1fr 1fr; }
+  .scorecard { grid-template-columns: 1fr; }
+  .valuation-card .vc-breakdown { grid-template-columns: 1fr 1fr; }
+  .dividend-card .dc-grid { grid-template-columns: 1fr 1fr; }
+  .game-log { font-size: 10px; }
+  .game-log th, .game-log td { padding: 6px 4px; }
+}
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="title">ARVIKA CHEMICALS LTD. <span>· STRATEGIC PORTFOLIO REVIEW 2034</span></div>
+  <div class="meta" id="headerMeta"></div>
+</header>
+
+<main id="app"></main>
+
+<script>
+// ============================================================
+//  GOOGLE SHEET URL — facilitator replaces this before session
+// ============================================================
+const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbwDE_QejFlZ-sc9956d9sbSWNH4g34gESJjWFz_TOsib7hFUVWDKAS3RbJc9Ibr2x-l1A/exec";
+
+// ============================================================
+//  GAME STATE
+// ============================================================
+const state = {
+  team: "",
+  round: 0,
+  portfolio: {
+    h1: { rev: 0, margin: 0, startRev: 0, startMargin: 0 },
+    h2: { rev: 0, margin: 0, startRev: 0, startMargin: 0 },
+    h3: [] // array of initiative objects
+  },
+  startTotalProfit: 0,
+  startTotalRevenue: 0,
+  startH1Profit: 0,
+  startH2Profit: 0,
+  portfolioProfile: "",
+  pool: [], // full initiative pool with jitter
+  drawn: [], // initiatives drawn for this run (0–3)
+  selected: [], // student-selected initiative IDs
+  rounds: [], // per-round summary objects
+  wildcardRound: 0, // 0 = no wildcard, else 1/2/3
+  wildcardEvent: null,
+  cumulativeDividends: 0,
+  priorProfit: 0, // profit of prior completed round (for indicative dividend)
+  currentSelection: { h1: null, h2: null, h3: null, div: null }
+};
+
+const fmt = n => Math.round(n).toLocaleString("en-IN");
+const fmtCr = n => "\u20B9" + fmt(n) + " cr";
+
+// ============================================================
+//  INITIATIVE POOL (10 options)
+// ============================================================
+const INITIATIVE_POOL = [
+  { id: "GH", name: "Green Hydrogen Chemicals", type: "Roofshot",
+    sizeMin: 400, sizeMax: 600,
+    r2_single: 0.30, r2_sustained: 0.70, r3_sustained: 0.80, r3_gap: 0.30,
+    desc: "Early-stage production of green hydrogen derivatives for industrial applications \u2014 fuel-cell grade ammonia, specialty reducing agents, and hydrogen-carrier chemicals. Domestic demand signals are emerging and regulatory support is building. A focused, capital-efficient entry point into the energy transition." },
+  { id: "EV", name: "EV Battery & Body Coatings", type: "Roofshot",
+    sizeMin: 700, sizeMax: 1000,
+    r2_single: 0.22, r2_sustained: 0.62, r3_sustained: 0.75, r3_gap: 0.22,
+    desc: "Coating systems for EV battery modules, thermal management housings, and body panels. OEM qualification cycles are demanding but partnerships once established are long-term. India\u2019s EV transition is creating growing and relatively predictable pull demand from established manufacturers." },
+  { id: "AF", name: "Advanced Agrochemical Formulations", type: "Moonshot",
+    sizeMin: 4500, sizeMax: 6000,
+    r2_single: 0.09, r2_sustained: 0.35, r3_sustained: 0.50, r3_gap: 0.09,
+    desc: "Proprietary next-generation crop-protection formulations combining biostimulants, precision chemistry, and controlled-release delivery systems. The addressable market is among the largest in the specialty chemicals sector given India\u2019s agricultural scale. However, regulatory approval pathways are long, technical complexity is high, and commercial timelines are difficult to predict with confidence." },
+  { id: "SC", name: "Semiconductor Process Chemicals", type: "Roofshot",
+    sizeMin: 800, sizeMax: 1200,
+    r2_single: 0.28, r2_sustained: 0.65, r3_sustained: 0.80, r3_gap: 0.28,
+    desc: "High-purity process chemicals for semiconductor fabrication \u2014 etchants, CMP slurries, and ancillary materials. Government incentive programmes are catalysing domestic fab investment and Arvika\u2019s existing process chemistry capabilities offer a credible foundation for entry." },
+  { id: "BM", name: "Bio-Based Monomers & Polymers", type: "Roofshot",
+    sizeMin: 500, sizeMax: 700,
+    r2_single: 0.25, r2_sustained: 0.65, r3_sustained: 0.78, r3_gap: 0.25,
+    desc: "Fermentation-derived platform chemicals for sustainable packaging and performance polymers. Global brand mandates on bio-content are generating consistent pull demand, and Arvika\u2019s existing fermentation infrastructure reduces the capital required for entry into this segment." },
+  { id: "WM", name: "Specialty Water Treatment Chemicals", type: "Roofshot",
+    sizeMin: 800, sizeMax: 1200,
+    r2_single: 0.32, r2_sustained: 0.70, r3_sustained: 0.80, r3_gap: 0.32,
+    desc: "High-performance coagulants, anti-scalants, and membrane-protection chemistries for industrial and municipal water treatment. New effluent compliance regulations are driving systematic replacement of commodity water treatment inputs with higher-performance specialty alternatives across Arvika\u2019s existing client base." },
+  { id: "NC", name: "Nanotechnology-Enhanced Coatings", type: "Moonshot",
+    sizeMin: 1200, sizeMax: 2200,
+    r2_single: 0.18, r2_sustained: 0.50, r3_sustained: 0.50, r3_gap: 0.18,
+    desc: "Nano-additive functional coatings delivering anti-corrosion, self-cleaning, and thermal-barrier performance for defence, aerospace, and critical infrastructure applications. Near-zero domestic competition exists today. Qualification and certification timelines for these segments are long and the science remains at an applied research stage in the Indian context." },
+  { id: "PH", name: "Pharma API Intermediates", type: "Moonshot",
+    sizeMin: 3000, sizeMax: 4500,
+    r2_single: 0.14, r2_sustained: 0.50, r3_sustained: 0.50, r3_gap: 0.14,
+    desc: "Specialty chemical intermediates for complex active pharmaceutical ingredients across oncology, CNS, and cardiovascular therapeutic areas. The addressable market is large and structurally attractive as global supply chains diversify away from single-source dependence. Entry requires significant process development capability and regulatory compliance investment before commercial revenues are realised." },
+  { id: "CE", name: "Carbon Capture & Utilisation Chemicals", type: "Moonshot",
+    sizeMin: 1500, sizeMax: 2800,
+    r2_single: 0.12, r2_sustained: 0.42, r3_sustained: 0.50, r3_gap: 0.12,
+    desc: "Chemical conversion processes transforming captured CO2 into methanol, formic acid, and specialty carbonates for industrial use. Policy support is directionally positive and ESG capital is available. Offtake markets are at an early stage of formation and the technology pathway to commercial scale at acceptable unit economics has not yet been demonstrated domestically." },
+  { id: "TE", name: "Textile Performance Chemicals", type: "Roofshot",
+    sizeMin: 1600, sizeMax: 2600,
+    r2_single: 0.30, r2_sustained: 0.68, r3_sustained: 0.80, r3_gap: 0.30,
+    desc: "High-performance dye-fixatives, finishing agents, and functional textile chemicals meeting REACH and ZDHC compliance standards. Export-oriented textile manufacturers face mandatory chemical compliance upgrades driven by their global buyer requirements \u2014 creating structured, near-term replacement demand for compliant specialty suppliers within Arvika\u2019s existing sales geography." }
+];
+
+// ============================================================
+//  RNG / UTILITIES
+// ============================================================
+function rand(min, max) { return Math.random() * (max - min) + min; }
+function randInt(min, max) { return Math.floor(rand(min, max + 1)); }
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function pickWeighted(weights) {
+  const total = weights.reduce((a, b) => a + b, 0);
+  let r = Math.random() * total;
+  for (let i = 0; i < weights.length; i++) {
+    r -= weights[i];
+    if (r <= 0) return i;
+  }
+  return weights.length - 1;
+}
+
+// ============================================================
+//  STARTING PORTFOLIO
+// ============================================================
+function rollStartingPortfolio() {
+  // H1: discrete revenue/margin pairs
+  const h1Options = [
+    { rev: 1000, margin: 5, profile: "Constrained Core" },
+    { rev: 4000, margin: 15, profile: "Balanced Core" },
+    { rev: 8000, margin: 25, profile: "Strong Core" }
+  ];
+  const h1Pick = h1Options[randInt(0, 2)];
+
+  // H2: revenue 500–3500 (round to 100), margin 2–5 (round to 0.5), ceiling 5
+  let h2Rev = Math.round(rand(500, 3500) / 100) * 100;
+  if (h2Rev < 500) h2Rev = 500;
+  if (h2Rev > 3500) h2Rev = 3500;
+  let h2Margin = Math.round(rand(2, 5) / 0.5) * 0.5;
+  if (h2Margin < 2) h2Margin = 2;
+  if (h2Margin > 5) h2Margin = 5;
+
+  state.portfolio.h1 = { rev: h1Pick.rev, margin: h1Pick.margin, startRev: h1Pick.rev, startMargin: h1Pick.margin };
+  state.portfolio.h2 = { rev: h2Rev, margin: h2Margin, startRev: h2Rev, startMargin: h2Margin };
+  state.portfolioProfile = h1Pick.profile;
+
+  state.startH1Profit = h1Pick.rev * (h1Pick.margin / 100);
+  state.startH2Profit = h2Rev * (h2Margin / 100);
+  state.startTotalProfit = state.startH1Profit + state.startH2Profit;
+  state.startTotalRevenue = h1Pick.rev + h2Rev;
+}
+
+// ============================================================
+//  H3 INITIATIVE DRAW + JITTER
+// ============================================================
+function drawInitiatives() {
+  // 25% chance of 0, 1, 2, 3
+  const count = randInt(0, 3);
+  if (count === 0) { state.drawn = []; return; }
+  const shuffled = shuffle(INITIATIVE_POOL);
+  const picked = shuffled.slice(0, count);
+  const labels = ["A", "B", "C"];
+  state.drawn = picked.map((init, idx) => {
+    // ±18% size, ±6pp probabilities
+    const sizeJitterMin = init.sizeMin * rand(0.82, 1.18);
+    const sizeJitterMax = init.sizeMax * rand(0.82, 1.18);
+    const jitterPp = () => (Math.random() * 0.12) - 0.06;
+    const moonshotCap = (p, jitter) => {
+      // moonshot skew downward
+      let v = p + (jitter * (jitter > 0 ? 0.5 : 1.2));
+      return Math.min(v, 0.50);
+    };
+    const roofshotCap = (p, jitter) => {
+      // roofshot skew upward
+      let v = p + (jitter * (jitter > 0 ? 1.2 : 0.6));
+      return Math.min(v, 0.80);
+    };
+    const applyP = (base) => {
+      const j = jitterPp();
+      if (init.type === "Moonshot") return Math.max(0.01, moonshotCap(base, j));
+      return Math.max(0.01, roofshotCap(base, j));
+    };
+    return {
+      label: labels[idx],
+      id: init.id,
+      name: init.name,
+      type: init.type,
+      desc: init.desc,
+      sizeMin: Math.round(Math.min(sizeJitterMin, sizeJitterMax)),
+      sizeMax: Math.round(Math.max(sizeJitterMin, sizeJitterMax)),
+      origSizeMin: Math.round(Math.min(sizeJitterMin, sizeJitterMax)),
+      origSizeMax: Math.round(Math.max(sizeJitterMin, sizeJitterMax)),
+      curSizeMin: Math.round(Math.min(sizeJitterMin, sizeJitterMax)),
+      curSizeMax: Math.round(Math.max(sizeJitterMin, sizeJitterMax)),
+      r2_single: applyP(init.r2_single),
+      r2_sustained: applyP(init.r2_sustained),
+      r3_sustained: applyP(init.r3_sustained),
+      r3_gap: applyP(init.r3_gap),
+      status: "active", // active, success, failed, closed
+      revenue: 0,
+      investHistory: [], // per round: true if invested
+      successRound: null,
+      revisedSentiment: "",
+      revisedDirection: ""
+    };
+  });
+}
+
+// ============================================================
+//  WILDCARD ASSIGNMENT
+// ============================================================
+function rollWildcard() {
+  // 75% chance of a wildcard at all
+  if (Math.random() >= 0.75) { state.wildcardRound = 0; state.wildcardEvent = null; return; }
+  // Distribute round: R1 20%, R2 40%, R3 40%
+  const r = Math.random();
+  if (r < 0.20) state.wildcardRound = 1;
+  else if (r < 0.60) state.wildcardRound = 2;
+  else state.wildcardRound = 3;
+  // Event: 25% each of three (or none)
+  const eventRoll = randInt(0, 3);
+  const events = ["H1_SHOCK", "H1_REG", "H2_TAIL", "NONE"];
+  state.wildcardEvent = events[eventRoll];
+  if (state.wildcardEvent === "NONE") { state.wildcardRound = 0; state.wildcardEvent = null; }
+}
+
+// ============================================================
+//  BUDGET CALC
+// ============================================================
+function budgetForProfit(profit) {
+  if (profit > 1800) return 260;
+  if (profit >= 1400) return 230;
+  if (profit >= 1000) return 200;
+  if (profit >= 600) return 170;
+  return 140;
+}
+const BUCKETS = {
+  260: { Low: 40, Medium: 80, High: 140 },
+  230: { Low: 35, Medium: 70, High: 125 },
+  200: { Low: 30, Medium: 60, High: 110 },
+  170: { Low: 25, Medium: 50, High: 95 },
+  140: { Low: 20, Medium: 40, High: 80 }
+};
+function bucketAmounts(budget) { return BUCKETS[budget]; }
+
+function dividendRate(level) { return { Low: 0.15, Medium: 0.30, High: 0.50 }[level]; }
+
+// ============================================================
+//  BUSINESS DYNAMICS RATES (per year)
+// ============================================================
+const H1_REV_DECLINE = { Zero: -0.18, Low: -0.15, Medium: -0.12, High: -0.10 };
+const H1_MARGIN_DECLINE = { Zero: -3, Low: -2.5, Medium: -2, High: -1.5 };
+function h2RevGrowth(level, round) {
+  const table = {
+    Zero:   [0.05, 0.02, 0.01],
+    Low:    [0.10, 0.05, 0.03],
+    Medium: [0.20, 0.10, 0.05],
+    High:   [0.25, 0.13, 0.07]
+  };
+  return table[level][round - 1];
+}
+function h2MarginImprove(level, round) {
+  const base = [1.5, 2.0, 1.5][round - 1];
+  if (level === "High") return base + 0.5;
+  if (level === "Medium") return base;
+  if (level === "Low") return base - 0.5;
+  return 0; // Zero
+}
+
+// Bucket weights for interpolation (0-init case)
+const BUCKET_WEIGHT = { Zero: 0, Low: 0.33, Medium: 0.67, High: 1.0 };
+
+// Interpolate H1 rev decline based on effective ₹ vs bucket anchor amounts
+function interpolateH1RevDecline(effectiveRupees, budget) {
+  const b = bucketAmounts(budget);
+  const anchors = [
+    { rupees: 0, rate: H1_REV_DECLINE.Zero },
+    { rupees: b.Low, rate: H1_REV_DECLINE.Low },
+    { rupees: b.Medium, rate: H1_REV_DECLINE.Medium },
+    { rupees: b.High, rate: H1_REV_DECLINE.High }
+  ];
+  if (effectiveRupees >= b.High) return H1_REV_DECLINE.High;
+  for (let i = 1; i < anchors.length; i++) {
+    if (effectiveRupees <= anchors[i].rupees) {
+      const lo = anchors[i-1], hi = anchors[i];
+      const t = (effectiveRupees - lo.rupees) / (hi.rupees - lo.rupees);
+      return lo.rate + t * (hi.rate - lo.rate);
+    }
+  }
+  return H1_REV_DECLINE.High;
+}
+function interpolateH1MarginDecline(effectiveRupees, budget) {
+  const b = bucketAmounts(budget);
+  const anchors = [
+    { rupees: 0, rate: H1_MARGIN_DECLINE.Zero },
+    { rupees: b.Low, rate: H1_MARGIN_DECLINE.Low },
+    { rupees: b.Medium, rate: H1_MARGIN_DECLINE.Medium },
+    { rupees: b.High, rate: H1_MARGIN_DECLINE.High }
+  ];
+  if (effectiveRupees >= b.High) return H1_MARGIN_DECLINE.High;
+  for (let i = 1; i < anchors.length; i++) {
+    if (effectiveRupees <= anchors[i].rupees) {
+      const lo = anchors[i-1], hi = anchors[i];
+      const t = (effectiveRupees - lo.rupees) / (hi.rupees - lo.rupees);
+      return lo.rate + t * (hi.rate - lo.rate);
+    }
+  }
+  return H1_MARGIN_DECLINE.High;
+}
+function interpolateH2RevGrowth(effectiveRupees, budget, round) {
+  const b = bucketAmounts(budget);
+  const anchors = [
+    { rupees: 0, rate: h2RevGrowth("Zero", round) },
+    { rupees: b.Low, rate: h2RevGrowth("Low", round) },
+    { rupees: b.Medium, rate: h2RevGrowth("Medium", round) },
+    { rupees: b.High, rate: h2RevGrowth("High", round) }
+  ];
+  if (effectiveRupees >= b.High) return h2RevGrowth("High", round);
+  for (let i = 1; i < anchors.length; i++) {
+    if (effectiveRupees <= anchors[i].rupees) {
+      const lo = anchors[i-1], hi = anchors[i];
+      const t = (effectiveRupees - lo.rupees) / (hi.rupees - lo.rupees);
+      return lo.rate + t * (hi.rate - lo.rate);
+    }
+  }
+  return h2RevGrowth("High", round);
+}
+function interpolateH2MarginImprove(effectiveRupees, budget, round) {
+  const b = bucketAmounts(budget);
+  const anchors = [
+    { rupees: 0, rate: h2MarginImprove("Zero", round) },
+    { rupees: b.Low, rate: h2MarginImprove("Low", round) },
+    { rupees: b.Medium, rate: h2MarginImprove("Medium", round) },
+    { rupees: b.High, rate: h2MarginImprove("High", round) }
+  ];
+  if (effectiveRupees >= b.High) return h2MarginImprove("High", round);
+  for (let i = 1; i < anchors.length; i++) {
+    if (effectiveRupees <= anchors[i].rupees) {
+      const lo = anchors[i-1], hi = anchors[i];
+      const t = (effectiveRupees - lo.rupees) / (hi.rupees - lo.rupees);
+      return lo.rate + t * (hi.rate - lo.rate);
+    }
+  }
+  return h2MarginImprove("High", round);
+}
+
+// Apply 3 years of compounding given a per-year rate (relative) for revenue, or absolute for margin
+function compoundRevenue(startRev, perYearRate) {
+  return startRev * Math.pow(1 + perYearRate, 3);
+}
+function applyAbsMargin(startMargin, perYearAbs) {
+  // perYearAbs is in percentage points (e.g. -1.5 means -1.5pp per year)
+  return startMargin + perYearAbs * 3;
+}
+
+// ============================================================
+//  CAGR HELPERS
+// ============================================================
+function cagr(startVal, endVal, years) {
+  if (!startVal || startVal <= 0 || endVal <= 0) return null;
+  return (Math.pow(endVal / startVal, 1 / years) - 1) * 100;
+}
+function fmtCagr(pct) {
+  if (pct === null) return "n/a";
+  return (pct >= 0 ? "+" : "") + pct.toFixed(1) + "%";
+}
+
+// ============================================================
+//  VALUATION
+// ============================================================
+function computeValuation() {
+  const p = state.portfolio;
+  const h1Val = p.h1.rev * 0.6;
+  const h2Val = p.h2.rev * 5;
+  let h3Val = 0;
+  let h3SuccessVal = 0;
+  let h3OptionalityVal = 0;
+  p.h3.forEach(init => {
+    if (init.status === "success") {
+      h3SuccessVal += init.revenue * 3;
+    } else if (init.status === "active") {
+      // probability-weighted max potential × 4
+      // Use sustained probability for next roll context; simplify by using r3_sustained
+      const probContext = state.round === 0 ? init.r2_sustained : (state.round === 1 ? init.r2_sustained : init.r3_sustained);
+      h3OptionalityVal += init.curSizeMax * probContext * 4;
+    }
+  });
+  h3Val = h3SuccessVal + h3OptionalityVal;
+  return {
+    h1: h1Val, h2: h2Val, h3: h3Val,
+    h3Success: h3SuccessVal, h3Optionality: h3OptionalityVal,
+    total: h1Val + h2Val + h3Val
+  };
+}
+
+// ============================================================
+//  ROUND RUN
+// ============================================================
+function runRound(roundNum, selection) {
+  // selection: { h1: "High"/"Medium"/"Low"/"Zero", h2: same, h3: same, div: "Low"/"Medium"/"High",
+  //              h1Eff, h2Eff, h3Eff }  (effective rupees)
+  const result = {
+    round: roundNum,
+    budget: state.currentBudget,
+    h1: selection.h1, h2: selection.h2, h3: selection.h3,
+    h1Eff: selection.h1Eff, h2Eff: selection.h2Eff, h3Eff: selection.h3Eff,
+    div: selection.div,
+    wildcard: null,
+    h1Before: { rev: state.portfolio.h1.rev, margin: state.portfolio.h1.margin },
+    h2Before: { rev: state.portfolio.h2.rev, margin: state.portfolio.h2.margin },
+    h3Rolls: [],
+    profit: 0,
+    divPaid: 0,
+    retained: 0,
+    nextBudget: 0,
+    valuation: null
+  };
+
+  // Fire wildcard if scheduled
+  const wcThisRound = (state.wildcardRound === roundNum && state.wildcardEvent);
+  result.wildcard = wcThisRound ? state.wildcardEvent : null;
+
+  // Determine if zero-initiative case (uses blended effective amounts)
+  const zeroInitCase = state.portfolio.h3.length === 0;
+
+  // ---- H1 dynamics ----
+  let h1RevRate, h1MarginRate;
+  if (zeroInitCase) {
+    h1RevRate = interpolateH1RevDecline(selection.h1Eff, state.currentBudget);
+    h1MarginRate = interpolateH1MarginDecline(selection.h1Eff, state.currentBudget);
+  } else {
+    h1RevRate = H1_REV_DECLINE[selection.h1];
+    h1MarginRate = H1_MARGIN_DECLINE[selection.h1];
+  }
+  let newH1Rev = compoundRevenue(state.portfolio.h1.rev, h1RevRate);
+  // Apply wildcard to H1
+  if (wcThisRound) {
+    if (state.wildcardEvent === "H1_SHOCK") newH1Rev *= 0.40;  // -60%
+    if (state.wildcardEvent === "H1_REG") newH1Rev *= 0.60;    // -40%
+  }
+  let newH1Margin = applyAbsMargin(state.portfolio.h1.margin, h1MarginRate);
+  if (newH1Margin < 0) newH1Margin = 0;
+  state.portfolio.h1.rev = newH1Rev;
+  state.portfolio.h1.margin = newH1Margin;
+
+  // ---- H2 dynamics ----
+  let h2RevRate, h2MarginRate;
+  if (zeroInitCase) {
+    h2RevRate = interpolateH2RevGrowth(selection.h2Eff, state.currentBudget, roundNum);
+    h2MarginRate = interpolateH2MarginImprove(selection.h2Eff, state.currentBudget, roundNum);
+  } else {
+    h2RevRate = h2RevGrowth(selection.h2, roundNum);
+    h2MarginRate = h2MarginImprove(selection.h2, roundNum);
+  }
+  // Wildcard tailwind: +20% absolute growth rate addition
+  if (wcThisRound && state.wildcardEvent === "H2_TAIL") {
+    h2RevRate += 0.20;
+  }
+  let newH2Rev = compoundRevenue(state.portfolio.h2.rev, h2RevRate);
+  let newH2Margin = applyAbsMargin(state.portfolio.h2.margin, h2MarginRate);
+  if (newH2Margin < 0) newH2Margin = 0;
+  state.portfolio.h2.rev = newH2Rev;
+  state.portfolio.h2.margin = newH2Margin;
+
+  // ---- H3 dynamics ----
+  state.portfolio.h3.forEach(init => {
+    if (init.status === "closed" || init.status === "failed") return;
+    if (init.status === "success") {
+      // compound at +15%/yr for 3 years
+      init.revenue = init.revenue * Math.pow(1.15, 3);
+      return;
+    }
+    // active
+    const investedThisRound = (selection.h3 !== "Zero");
+    init.investHistory.push(investedThisRound);
+
+    if (!investedThisRound) {
+      // Zero chosen: permanently close
+      init.status = "closed";
+      result.h3Rolls.push({ id: init.id, name: init.name, outcome: "closed" });
+      return;
+    }
+    // Roll based on round and history
+    let prob = 0;
+    let rollNow = false;
+    if (roundNum === 1) {
+      rollNow = false; // too early
+    } else if (roundNum === 2) {
+      const r1Inv = init.investHistory[0];
+      if (r1Inv) { prob = init.r2_sustained; rollNow = true; }
+      else { prob = init.r2_single; rollNow = true; }
+    } else if (roundNum === 3) {
+      const r1Inv = init.investHistory[0];
+      const r2Inv = init.investHistory[1];
+      if (r1Inv && r2Inv) { prob = init.r3_sustained; rollNow = true; }
+      else if (!r2Inv && r1Inv) { prob = init.r3_gap; rollNow = true; }
+      else if (!r1Inv && r2Inv) { prob = init.r3_gap; rollNow = true; }
+      else { prob = init.r3_sustained; rollNow = true; } // invested R3 only
+    }
+    if (rollNow) {
+      const success = Math.random() < prob;
+      if (success) {
+        init.status = "success";
+        init.revenue = rand(init.curSizeMin, init.curSizeMax);
+        init.successRound = roundNum;
+        result.h3Rolls.push({ id: init.id, name: init.name, outcome: "success", revenue: init.revenue });
+      } else {
+        if (roundNum === 3) {
+          // final roll: written off
+          init.status = "failed";
+          result.h3Rolls.push({ id: init.id, name: init.name, outcome: "failed" });
+        } else {
+          result.h3Rolls.push({ id: init.id, name: init.name, outcome: "miss" });
+        }
+      }
+    } else {
+      result.h3Rolls.push({ id: init.id, name: init.name, outcome: "progressing" });
+    }
+  });
+
+  // Revise estimates (R1 & R2 only — R3 has no future)
+  if (roundNum === 1 || roundNum === 2) {
+    state.portfolio.h3.forEach(init => {
+      if (init.status !== "active") return;
+      const r1Inv = init.investHistory[0];
+      const r2Inv = init.investHistory[1];
+      let mult, sentiment, dir;
+      if (roundNum === 1) {
+        if (r1Inv) {
+          mult = rand(0.88, 1.16);
+          if (Math.random() < 0.6) { sentiment = "\u2191 Revised up"; dir = "up"; }
+          else { sentiment = "~ Estimate updated"; dir = "mixed"; }
+        } else {
+          mult = rand(0.65, 0.83);
+          sentiment = "\u2193 Revised down"; dir = "down";
+        }
+      } else {
+        // R2
+        if (r1Inv && r2Inv) {
+          mult = rand(0.92, 1.18);
+          if (Math.random() < 0.7) { sentiment = "\u2191 Revised up"; dir = "up"; }
+          else { sentiment = "~ Estimate updated"; dir = "mixed"; }
+        } else if (r1Inv || r2Inv) {
+          mult = rand(0.78, 0.96);
+          sentiment = "\u2193 Revised down"; dir = "down";
+        } else {
+          mult = rand(0.52, 0.76);
+          sentiment = "\u2193 Significantly revised downward"; dir = "down";
+        }
+      }
+      init.curSizeMin = Math.round(init.curSizeMin * mult);
+      init.curSizeMax = Math.round(init.curSizeMax * mult);
+      init.revisedSentiment = sentiment;
+      init.revisedDirection = dir;
+    });
+  }
+
+  // ---- Compute profit ----
+  const h1Profit = state.portfolio.h1.rev * (state.portfolio.h1.margin / 100);
+  const h2Profit = state.portfolio.h2.rev * (state.portfolio.h2.margin / 100);
+  let h3Profit = 0;
+  state.portfolio.h3.forEach(init => {
+    if (init.status === "success") h3Profit += init.revenue * 0.05;
+  });
+  result.profit = h1Profit + h2Profit + h3Profit;
+  result.h1Profit = h1Profit;
+  result.h2Profit = h2Profit;
+  result.h3Profit = h3Profit;
+
+  // ---- Dividend ----
+  if (result.profit <= 0) {
+    result.divPaid = 0;
+    result.retained = result.profit;
+    result.zeroProfit = true;
+  } else {
+    result.divPaid = result.profit * dividendRate(selection.div);
+    result.retained = result.profit - result.divPaid;
+  }
+  state.cumulativeDividends += result.divPaid;
+
+  // ---- Next budget ----
+  result.nextBudget = budgetForProfit(result.retained);
+  state.priorProfit = result.profit;
+
+  // ---- Valuation ----
+  result.valuation = computeValuation();
+
+  state.rounds.push(result);
+  return result;
+}
+
+// ============================================================
+//  RENDER ENGINE
+// ============================================================
+const app = document.getElementById("app");
+const headerMeta = document.getElementById("headerMeta");
+function updateHeader() {
+  if (!state.team) { headerMeta.innerHTML = ""; return; }
+  let html = "<span>TEAM: <strong style=\"color:#fff;\">" + state.team + "</strong></span>";
+  if (state.round >= 1) html += "<span>ROUND " + state.round + " / 3</span>";
+  headerMeta.innerHTML = html;
+}
+function show(html) {
+  app.innerHTML = html;
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+// ============================================================
+//  SCREEN 1 — WELCOME
+// ============================================================
+function screenWelcome() {
+  rollStartingPortfolio();
+  drawInitiatives();
+  rollWildcard();
+
+  const h1 = state.portfolio.h1, h2 = state.portfolio.h2;
+  const totalRev = h1.rev + h2.rev;
+  const totalProfit = state.startTotalProfit;
+
+  let html = "<div class=\"screen\">";
+  html += "<div class=\"hero\">";
+  html += "<div class=\"eyebrow\">McKinsey Three Horizons Framework</div>";
+  html += "<h1>The next nine years will define <span>Arvika in 2034</span></h1>";
+  html += "<p class=\"sub\">Arvika Chemicals Ltd. is an Indian specialty chemicals conglomerate founded in 1978. The board has convened a strategic portfolio review. Across three cycles spanning 2025 to 2034, the leadership team will allocate capital across the existing core, the bridge business, and emerging growth platforms. Every decision compounds.</p>";
+  html += "<div class=\"meta-row\">";
+  html += "<span>FOUNDED <strong>1978</strong></span>";
+  html += "<span>HORIZON <strong>2025 \u2192 2034</strong></span>";
+  html += "<span>CYCLES <strong>3 \u00d7 3 YEARS</strong></span>";
+  html += "</div></div>";
+
+  html += "<div class=\"card\">";
+  html += "<div class=\"card-eyebrow\">Opening Portfolio Position</div>";
+  html += "<h2>Current State of the Business</h2>";
+  html += "<p class=\"text-mute\" style=\"margin-bottom:14px;\">As of the start of 2025, the portfolio comprises two operating businesses. The board has tasked the leadership team with deciding how to evolve it.</p>";
+  html += "<table class=\"portfolio-table\">";
+  html += "<thead><tr><th>Business</th><th>Horizon</th><th class=\"num\">Revenue</th><th class=\"num\">Margin</th><th class=\"num\">Profit</th></tr></thead>";
+  html += "<tbody>";
+  html += "<tr><td>Industrial Chemicals (Textiles &amp; Paints)</td><td><span class=\"pill pill-h1\">H1</span></td><td class=\"num\">" + fmtCr(h1.rev) + "</td><td class=\"num\">" + h1.margin.toFixed(1) + "%</td><td class=\"num\">" + fmtCr(state.startH1Profit) + "</td></tr>";
+  html += "<tr><td>Specialty Coatings</td><td><span class=\"pill pill-h2\">H2</span></td><td class=\"num\">" + fmtCr(h2.rev) + "</td><td class=\"num\">" + h2.margin.toFixed(1) + "%</td><td class=\"num\">" + fmtCr(state.startH2Profit) + "</td></tr>";
+  html += "</tbody>";
+  html += "<tfoot><tr><td colspan=\"2\">Total</td><td class=\"num\">" + fmtCr(totalRev) + "</td><td class=\"num\">\u2014</td><td class=\"num\">" + fmtCr(totalProfit) + "</td></tr></tfoot>";
+  html += "</table>";
+  html += "</div>";
+
+  html += "<div class=\"card\">";
+  html += "<div class=\"card-eyebrow\">Process</div>";
+  html += "<h2>How the Review Will Run</h2>";
+  html += "<p style=\"margin-top:8px;font-size:14px;\">Three review cycles \u2014 each representing three operating years \u2014 covering 2025 to 2034. In each cycle the leadership team will receive an investment budget, allocate it across the active horizons, and decide on dividend policy. Results from one cycle compound into the next. Capital allocation is the only lever you control \u2014 markets, technology pathways, and external events are not.</p>";
+  html += "</div>";
+
+  html += "<div class=\"card\">";
+  html += "<div class=\"card-eyebrow\">Begin</div>";
+  html += "<h2>Confirm the Leadership Team</h2>";
+  html += "<p class=\"text-mute\">Enter your team name to begin the review.</p>";
+  html += "<div class=\"team-input-wrap\">";
+  html += "<input id=\"teamInput\" type=\"text\" placeholder=\"Team name\" maxlength=\"40\" autocomplete=\"off\">";
+  html += "<button class=\"btn-primary\" onclick=\"submitTeam()\">Begin</button>";
+  html += "</div>";
+  html += "<div id=\"teamError\"></div>";
+  html += "</div>";
+  html += "</div>";
+
+  show(html);
+
+  const input = document.getElementById("teamInput");
+  input.focus();
+  input.addEventListener("keydown", function(e) {
+    if (e.key === "Enter") submitTeam();
+  });
+}
+function submitTeam() {
+  const val = document.getElementById("teamInput").value.trim();
+  if (!val) {
+    document.getElementById("teamError").innerHTML = "<div class=\"error-msg\">Please enter a team name to proceed.</div>";
+    return;
+  }
+  state.team = val;
+  updateHeader();
+  screenH3Selection();
+}
+
+// ============================================================
+//  SCREEN 2 — H3 SELECTION
+// ============================================================
+function screenH3Selection() {
+  let html = "<div class=\"screen\">";
+  html += "<div class=\"card-eyebrow\" style=\"margin-bottom:8px;\">H3 Initiative Review</div>";
+  html += "<h1 style=\"font-size:28px;margin-bottom:10px;\">Emerging Growth Initiatives</h1>";
+  html += "<p class=\"text-mute\" style=\"max-width:780px;margin-bottom:24px;\">The corporate development team has surfaced the following Horizon 3 candidates for board consideration. Each represents a potential new platform business. Select those the leadership team wishes to formally pursue. Pursued initiatives will receive coordinated H3 investment in each cycle.</p>";
+
+  if (state.drawn.length === 0) {
+    html += "<div class=\"card\">";
+    html += "<h2>No H3 Possibilities Identified</h2>";
+    html += "<p style=\"margin-top:10px;font-size:14px;\">The corporate development team has not surfaced any viable Horizon 3 candidates for this portfolio cycle. The leadership team will focus capital allocation on H1 and H2 only across the review period. The board may revisit this position in future cycles.</p>";
+    html += "<div style=\"margin-top:18px;\"><button class=\"btn-primary\" onclick=\"completeH3Selection()\">Proceed to Round 1</button></div>";
+    html += "</div></div>";
+    show(html);
+    return;
+  }
+
+  html += "<div class=\"init-grid\">";
+  state.drawn.forEach(init => {
+    html += "<div class=\"init-card\" id=\"init-" + init.id + "\" onclick=\"toggleInit('" + init.id + "')\">";
+    html += "<div class=\"init-head\">";
+    html += "<div><span class=\"pill pill-h3\">Initiative " + init.label + "</span><div class=\"init-name\" style=\"margin-top:8px;\">" + init.name + "</div></div>";
+    html += "<input type=\"checkbox\" id=\"chk-" + init.id + "\" onclick=\"event.stopPropagation();toggleInit('" + init.id + "')\">";
+    html += "</div>";
+    html += "<div class=\"init-desc\">" + init.desc + "</div>";
+    html += "<div class=\"init-meta\">";
+    html += "<span>Estimated revenue potential at scale: <strong>" + fmtCr(init.sizeMin) + " \u2013 " + fmtCr(init.sizeMax) + "</strong></span>";
+    html += "</div></div>";
+  });
+  html += "</div>";
+
+  html += "<div id=\"selectError\"></div>";
+  html += "<div style=\"margin-top:24px;\"><button class=\"btn-primary\" onclick=\"completeH3Selection()\">Confirm Selection &amp; Begin Round 1</button></div>";
+  html += "</div>";
+  show(html);
+}
+function toggleInit(id) {
+  const card = document.getElementById("init-" + id);
+  const chk = document.getElementById("chk-" + id);
+  const idx = state.selected.indexOf(id);
+  if (idx === -1) {
+    state.selected.push(id);
+    card.classList.add("selected");
+    chk.checked = true;
+  } else {
+    state.selected.splice(idx, 1);
+    card.classList.remove("selected");
+    chk.checked = false;
+  }
+}
+function completeH3Selection() {
+  if (state.drawn.length > 0 && state.selected.length === 0) {
+    document.getElementById("selectError").innerHTML = "<div class=\"error-msg\">Select at least one initiative to pursue, or revisit the analysis.</div>";
+    return;
+  }
+  // Populate portfolio.h3 with selected initiatives only
+  state.portfolio.h3 = state.drawn.filter(d => state.selected.indexOf(d.id) !== -1);
+  state.round = 1;
+  state.currentBudget = budgetForProfit(state.startTotalProfit);
+  state.priorProfit = state.startTotalProfit;
+  updateHeader();
+  screenAllocation();
+}
+
+// ============================================================
+//  SCREEN 3 — ALLOCATION
+// ============================================================
+function screenAllocation() {
+  const r = state.round;
+  state.currentSelection = { h1: null, h2: null, h3: null, div: null };
+  const zeroInit = state.portfolio.h3.length === 0;
+  const activeInits = state.portfolio.h3.filter(i => i.status === "active");
+  const hasActiveH3 = activeInits.length > 0;
+  const b = bucketAmounts(state.currentBudget);
+
+  let html = "<div class=\"screen\">";
+  // Round indicator
+  html += "<div class=\"round-indicator\">";
+  for (let i = 1; i <= 3; i++) {
+    const cls = i < r ? "complete" : (i === r ? "active" : "");
+    html += "<div class=\"round-dot " + cls + "\"></div>";
+  }
+  html += "</div>";
+
+  html += "<div style=\"display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:16px;flex-wrap:wrap;gap:10px;\">";
+  html += "<div><div class=\"card-eyebrow\">Round " + r + " of 3 \u00b7 Years " + (r*3 - 2) + "\u2013" + (r*3) + "</div>";
+  html += "<h1 style=\"font-size:26px;\">Capital Allocation Decision</h1></div>";
+  html += "</div>";
+
+  // Current portfolio state
+  html += "<div class=\"card\">";
+  html += "<div class=\"card-eyebrow\">Current Portfolio State</div>";
+  html += "<h3>Where Things Stand Entering This Cycle</h3>";
+  const val = computeValuation();
+  html += "<table class=\"portfolio-table\">";
+  html += "<thead><tr><th>Business</th><th class=\"num\">Revenue</th><th class=\"num\">Margin</th><th class=\"num\">Profit</th></tr></thead><tbody>";
+  html += "<tr><td><span class=\"pill pill-h1\">H1</span> Industrial Chemicals</td><td class=\"num\">" + fmtCr(state.portfolio.h1.rev) + "</td><td class=\"num\">" + state.portfolio.h1.margin.toFixed(1) + "%</td><td class=\"num\">" + fmtCr(state.portfolio.h1.rev * state.portfolio.h1.margin / 100) + "</td></tr>";
+  html += "<tr><td><span class=\"pill pill-h2\">H2</span> Specialty Coatings</td><td class=\"num\">" + fmtCr(state.portfolio.h2.rev) + "</td><td class=\"num\">" + state.portfolio.h2.margin.toFixed(1) + "%</td><td class=\"num\">" + fmtCr(state.portfolio.h2.rev * state.portfolio.h2.margin / 100) + "</td></tr>";
+  state.portfolio.h3.forEach(init => {
+    if (init.status === "success") {
+      html += "<tr><td><span class=\"pill pill-success\">H3</span> " + init.name + "</td><td class=\"num\">" + fmtCr(init.revenue) + "</td><td class=\"num\">5.0%</td><td class=\"num\">" + fmtCr(init.revenue * 0.05) + "</td></tr>";
+    }
+  });
+  html += "</tbody></table>";
+  html += "<div style=\"margin-top:14px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:14px;font-family:'DM Mono',monospace;font-size:12px;color:rgba(15,17,23,0.7);\">";
+  html += "<span>PRIOR ROUND PROFIT: <strong style=\"color:var(--ink);\">" + fmtCr(state.priorProfit) + "</strong></span>";
+  html += "<span>PORTFOLIO VALUATION: <strong style=\"color:var(--ink);\">" + fmtCr(val.total) + "</strong></span>";
+  html += "<span>CUMULATIVE DIVIDENDS: <strong style=\"color:var(--ink);\">" + fmtCr(state.cumulativeDividends) + "</strong></span>";
+  html += "</div>";
+  html += "</div>";
+
+  // Budget banner
+  html += "<div class=\"budget-banner\">";
+  html += "<div><div class=\"bb-label\">Round " + r + " Investment Budget</div><div class=\"bb-value\">" + fmtCr(state.currentBudget) + "</div></div>";
+  html += "<div class=\"bb-side\">Allocated across H1, H2" + (hasActiveH3 ? ", and H3" : (zeroInit ? "" : "")) + "<br>Exact bucket amounts revealed after submit" + (zeroInit ? " \u00b7 Medium auto-split" : "") + "</div>";
+  html += "</div>";
+
+  // Active H3 chips
+  if (state.portfolio.h3.length > 0) {
+    html += "<div class=\"card\">";
+    html += "<div class=\"card-eyebrow\">Active H3 Initiatives</div>";
+    html += "<div class=\"active-init-row\">";
+    state.portfolio.h3.forEach(init => {
+      let cls = "init-chip";
+      let label = init.name;
+      if (init.status === "success") { cls += " success"; label += " \u00b7 Commercial"; }
+      else if (init.status === "closed") { cls += " closed"; label += " \u00b7 Closed"; }
+      else if (init.status === "failed") { cls += " closed"; label += " \u00b7 Written off"; }
+      html += "<span class=\"" + cls + "\">" + label + "</span>";
+    });
+    html += "</div></div>";
+  }
+
+  // Proportion bar — based on bucket ratios
+  const totalBuckets = b.High + b.Medium + b.Low;
+  const hiPct = Math.round(b.High / totalBuckets * 100);
+  const medPct = Math.round(b.Medium / totalBuckets * 100);
+  const loPct = 100 - hiPct - medPct;
+
+  // Investment selectors
+  html += "<div class=\"card\">";
+  html += "<div class=\"card-eyebrow\">Decision 1\u20133 \u00b7 Capital Allocation</div>";
+  html += "<h3>Allocate Investment Across Horizons</h3>";
+  if (zeroInit) {
+    html += "<p class=\"text-mute\" style=\"margin-bottom:14px;\">With no active H3 initiatives, allocate between H1 and H2 only. The Medium bucket will be split equally between them. Assign exactly one High and one Low.</p>";
+  } else if (hasActiveH3) {
+    html += "<p class=\"text-mute\" style=\"margin-bottom:14px;\">Assign exactly one High, one Medium, and one Low across H1, H2, and H3. H3 can additionally be set to Zero, which permanently closes all active initiatives.</p>";
+  } else {
+    // H3 initiatives exist but all closed/failed/success-only — message depends on outcome mix
+    const successCount = state.portfolio.h3.filter(i => i.status === "success").length;
+    const failedCount = state.portfolio.h3.filter(i => i.status === "failed").length;
+    const closedCount = state.portfolio.h3.filter(i => i.status === "closed").length;
+    let msg;
+    if (successCount > 0 && failedCount === 0 && closedCount === 0) {
+      msg = "All H3 initiatives have reached commercial status \u2014 successful businesses continue to compound automatically. With no H3 initiatives still in development, allocate this cycle\u2019s capital between H1 and H2. The Medium bucket will be split equally between them.";
+    } else if (successCount > 0) {
+      msg = "Some H3 initiatives have reached commercial status; the remainder have been concluded. With no H3 initiatives still in development, allocate this cycle\u2019s capital between H1 and H2. The Medium bucket will be split equally between them.";
+    } else {
+      msg = "All H3 initiatives have been concluded. Allocate this cycle\u2019s capital between H1 and H2. The Medium bucket will be split equally between them.";
+    }
+    html += "<p class=\"text-mute\" style=\"margin-bottom:14px;\">" + msg + "</p>";
+  }
+
+  // Proportion bar (no rupee labels)
+  html += "<div class=\"prop-bar\">";
+  html += "<div class=\"prop-seg prop-high\" style=\"width:" + hiPct + "%;\">HIGH</div>";
+  html += "<div class=\"prop-seg prop-medium\" style=\"width:" + medPct + "%;\">MEDIUM</div>";
+  html += "<div class=\"prop-seg prop-low\" style=\"width:" + loPct + "%;\">LOW</div>";
+  html += "</div>";
+  html += "<p class=\"text-mute\" style=\"font-size:11.5px;margin-top:6px;\">Proportion shown only. Exact rupee amounts revealed after submission.</p>";
+
+  // Determine which BUs get selectors
+  const useFullThree = hasActiveH3;
+  html += "<div style=\"margin-top:18px;\">";
+  // H1
+  html += renderInvestRow("h1", "H1", "Industrial Chemicals", useFullThree, false, false, zeroInit);
+  // H2
+  html += renderInvestRow("h2", "H2", "Specialty Coatings", useFullThree, false, false, zeroInit);
+  // H3
+  if (hasActiveH3) {
+    const perInit = "Per initiative: " + fmtCr(b.High / activeInits.length) + " at High, etc.";
+    html += renderInvestRow("h3", "H3", activeInits.length + " active initiative" + (activeInits.length > 1 ? "s" : ""), useFullThree, true, false, zeroInit);
+  } else {
+    // H3 locked at Zero (silent) — describe accurately based on resolution mix
+    const successCount = state.portfolio.h3.filter(i => i.status === "success").length;
+    const failedCount = state.portfolio.h3.filter(i => i.status === "failed").length;
+    const closedCount = state.portfolio.h3.filter(i => i.status === "closed").length;
+    let subLabel = "No active initiatives";
+    let rightLabel = "Locked at Zero";
+    if (state.portfolio.h3.length > 0) {
+      if (successCount > 0 && failedCount === 0 && closedCount === 0) {
+        subLabel = "All commercial \u2014 compounding automatically";
+        rightLabel = "No further investment required";
+      } else if (successCount > 0) {
+        subLabel = successCount + " commercial, " + (failedCount + closedCount) + " concluded";
+        rightLabel = "No active development";
+      } else {
+        subLabel = "All initiatives concluded";
+        rightLabel = "No active development";
+      }
+    }
+    html += "<div class=\"invest-row\" style=\"opacity:0.6;\">";
+    html += "<div><div class=\"bu-label\">H3</div><div class=\"bu-sub\">" + subLabel + "</div></div>";
+    html += "<div style=\"font-family:'DM Mono',monospace;font-size:12px;color:rgba(15,17,23,0.55);padding:10px 0;\">" + rightLabel + "</div>";
+    html += "</div>";
+  }
+  html += "</div>";
+
+  // Effective rupees preview for zero-init case
+  if (zeroInit || (!hasActiveH3 && state.portfolio.h3.length > 0)) {
+    html += "<div id=\"effPreview\" style=\"margin-top:12px;\"></div>";
+  }
+  html += "</div>";
+
+  // Dividend panel
+  html += "<div class=\"dividend-panel\">";
+  html += "<div class=\"card-eyebrow\">Decision 4 \u00b7 Capital Returns</div>";
+  html += "<h3>Board Decision \u2014 Shareholder Returns</h3>";
+  html += "<p class=\"sub\">Dividend policy is independent of investment allocation. Select the payout that best reflects the leadership team's view of capital priorities. Indicative figures below use prior-cycle profit as the basis.</p>";
+  html += "<div class=\"dividend-options\">";
+  ["Low", "Medium", "High"].forEach(level => {
+    const rate = dividendRate(level);
+    const indicativeDiv = state.priorProfit * rate;
+    const indicativeRetained = state.priorProfit - indicativeDiv;
+    const indicativeBudget = budgetForProfit(indicativeRetained);
+    html += "<div class=\"div-opt\" data-level=\"" + level + "\" onclick=\"selectDiv('" + level + "')\">";
+    html += "<div class=\"div-label\">" + level + " Dividend</div>";
+    html += "<div class=\"div-detail\">";
+    html += "Payout: <strong>" + Math.round(rate * 100) + "% of profit</strong><br>";
+    html += "Indicative dividend: <strong>" + fmtCr(indicativeDiv) + "</strong><br>";
+    html += "Indicative retained: <strong>" + fmtCr(indicativeRetained) + "</strong><br>";
+    html += "Next-cycle budget tier: <strong>" + fmtCr(indicativeBudget) + "</strong>";
+    html += "</div></div>";
+  });
+  html += "</div></div>";
+
+  // Submit
+  html += "<div id=\"allocError\"></div>";
+  html += "<div style=\"margin-top:24px;\"><button class=\"btn-primary\" onclick=\"submitAllocation()\">Submit Cycle " + r + " Decisions</button></div>";
+
+  html += "</div>";
+  show(html);
+  refreshEffectivePreview();
+}
+
+function renderInvestRow(buKey, buLabel, buSub, fullThree, allowZero, isClosed, zeroInit) {
+  let html = "<div class=\"invest-row\">";
+  html += "<div><div class=\"bu-label\">" + buLabel + "</div><div class=\"bu-sub\">" + buSub + "</div></div>";
+  html += "<div class=\"invest-options\">";
+  if (fullThree) {
+    ["High", "Medium", "Low", "Zero"].forEach(level => {
+      if (level === "Zero" && buKey !== "h3") {
+        // H1/H2 can't be Zero in standard 3-way case
+        html += "<div class=\"invest-opt disabled\" data-level=\"" + level + "\">" + level + "</div>";
+      } else if (level === "Zero" && buKey === "h3" && !allowZero) {
+        html += "<div class=\"invest-opt disabled\" data-level=\"" + level + "\">" + level + "</div>";
+      } else {
+        html += "<div class=\"invest-opt\" data-level=\"" + level + "\" onclick=\"selectInvest('" + buKey + "','" + level + "')\">" + level + "</div>";
+      }
+    });
+  } else {
+    // 2-way (H1 & H2 only): High and Low selectable; Medium and Zero greyed
+    ["High", "Medium", "Low", "Zero"].forEach(level => {
+      if (level === "High" || level === "Low") {
+        html += "<div class=\"invest-opt\" data-level=\"" + level + "\" onclick=\"selectInvest('" + buKey + "','" + level + "')\">" + level + "</div>";
+      } else if (level === "Medium") {
+        html += "<div class=\"invest-opt disabled\" data-level=\"" + level + "\" title=\"Auto-split\">Auto-split</div>";
+      } else {
+        html += "<div class=\"invest-opt disabled\" data-level=\"" + level + "\">" + level + "</div>";
+      }
+    });
+  }
+  html += "</div></div>";
+  return html;
+}
+
+function selectInvest(bu, level) {
+  state.currentSelection[bu] = level;
+  // Update UI for this BU row
+  document.querySelectorAll(".invest-row").forEach(row => {
+    const label = row.querySelector(".bu-label");
+    if (label && label.textContent === bu.toUpperCase()) {
+      row.querySelectorAll(".invest-opt").forEach(opt => {
+        opt.classList.remove("selected");
+        if (opt.getAttribute("data-level") === level && !opt.classList.contains("disabled")) {
+          opt.classList.add("selected");
+        }
+      });
+    }
+  });
+  refreshEffectivePreview();
+}
+function selectDiv(level) {
+  state.currentSelection.div = level;
+  document.querySelectorAll(".div-opt").forEach(opt => {
+    opt.classList.toggle("selected", opt.getAttribute("data-level") === level);
+  });
+}
+
+function refreshEffectivePreview() {
+  const prev = document.getElementById("effPreview");
+  if (!prev) return;
+  const zeroInit = state.portfolio.h3.length === 0;
+  const activeH3 = state.portfolio.h3.filter(i => i.status === "active").length > 0;
+  if (!zeroInit && activeH3) { prev.innerHTML = ""; return; }
+  const sel = state.currentSelection;
+  if (!sel.h1 || !sel.h2) { prev.innerHTML = ""; return; }
+  const b = bucketAmounts(state.currentBudget);
+  const h1Base = b[sel.h1] || 0;
+  const h2Base = b[sel.h2] || 0;
+  const medSplit = b.Medium / 2;
+  const h1Eff = h1Base + medSplit;
+  const h2Eff = h2Base + medSplit;
+  let html = "<div class=\"warn-msg\" style=\"background:#fff8e3;color:var(--ink);border-left-color:var(--gold);\">";
+  html += "<strong>Effective allocation preview:</strong> H1 \u2192 " + fmtCr(h1Eff) + " &nbsp;\u00b7&nbsp; H2 \u2192 " + fmtCr(h2Eff);
+  html += "</div>";
+  prev.innerHTML = html;
+}
+
+function submitAllocation() {
+  const sel = state.currentSelection;
+  const errBox = document.getElementById("allocError");
+  errBox.innerHTML = "";
+  const zeroInit = state.portfolio.h3.length === 0;
+  const activeH3 = state.portfolio.h3.filter(i => i.status === "active").length > 0;
+  const useFullThree = activeH3;
+
+  // Validate dividend
+  if (!sel.div) {
+    errBox.innerHTML = "<div class=\"error-msg\">Select a dividend policy before submitting.</div>";
+    return;
+  }
+
+  if (useFullThree) {
+    // Must have one High, one Medium, one Low across H1/H2/H3 (H3 can additionally be Zero)
+    if (!sel.h1 || !sel.h2 || !sel.h3) {
+      errBox.innerHTML = "<div class=\"error-msg\">Assign an investment level to H1, H2, and H3.</div>";
+      return;
+    }
+    // H3 Zero special path: still need H1 + H2 to cover High/Medium/Low minus one
+    if (sel.h3 === "Zero") {
+      // H1 and H2 must cover two of {High, Medium, Low} with no repeats. The remaining bucket is unspent? 
+      // Spec: "H3 can additionally be set to Zero (permanently closes all active initiatives)"
+      // Interpret: when H3 = Zero, the remaining two of three buckets go to H1 and H2 (no repeats). The Zero choice forfeits the unassigned bucket as overhead.
+      // To keep gameplay coherent, require H1 != H2 and both from {High, Medium, Low}.
+      if (sel.h1 === sel.h2 || sel.h1 === "Zero" || sel.h2 === "Zero") {
+        errBox.innerHTML = "<div class=\"error-msg\">When H3 is closed, H1 and H2 must take two different investment levels from High, Medium, Low.</div>";
+        return;
+      }
+      // Confirm closure
+      if (!confirm("Setting H3 to Zero will permanently close all active H3 initiatives. This decision is irreversible. Proceed?")) return;
+    } else {
+      // Three different levels among High, Medium, Low
+      const levels = [sel.h1, sel.h2, sel.h3].sort();
+      const expected = ["High", "Low", "Medium"].sort();
+      if (JSON.stringify(levels) !== JSON.stringify(expected)) {
+        errBox.innerHTML = "<div class=\"error-msg\">Assign exactly one High, one Medium, and one Low across H1, H2, and H3.</div>";
+        return;
+      }
+    }
+  } else {
+    // Zero-init or no-active-H3 case: H1 and H2 take High and Low (one each)
+    if (!sel.h1 || !sel.h2) {
+      errBox.innerHTML = "<div class=\"error-msg\">Assign an investment level to H1 and H2.</div>";
+      return;
+    }
+    const pair = [sel.h1, sel.h2].sort();
+    if (JSON.stringify(pair) !== JSON.stringify(["High", "Low"])) {
+      errBox.innerHTML = "<div class=\"error-msg\">Assign exactly one High and one Low between H1 and H2.</div>";
+      return;
+    }
+    // H3 auto-locked at Zero (silent for zero-init; suppressed warning per spec)
+    sel.h3 = "Zero";
+  }
+
+  // Compute effective rupees
+  const b = bucketAmounts(state.currentBudget);
+  let h1Eff, h2Eff, h3Eff;
+  if (useFullThree) {
+    h1Eff = sel.h1 === "Zero" ? 0 : b[sel.h1];
+    h2Eff = sel.h2 === "Zero" ? 0 : b[sel.h2];
+    h3Eff = sel.h3 === "Zero" ? 0 : b[sel.h3];
+  } else {
+    // Medium auto-split
+    const medSplit = b.Medium / 2;
+    h1Eff = b[sel.h1] + medSplit;
+    h2Eff = b[sel.h2] + medSplit;
+    h3Eff = 0;
+  }
+  sel.h1Eff = h1Eff; sel.h2Eff = h2Eff; sel.h3Eff = h3Eff;
+
+  // Run round
+  const result = runRound(state.round, sel);
+  screenResults(result);
+}
+
+// ============================================================
+//  SCREEN 4 — RESULTS
+// ============================================================
+function screenResults(result) {
+  const r = state.round;
+  const zeroInit = state.portfolio.h3.length === 0;
+  const sel = result;
+  const b = bucketAmounts(result.budget);
+
+  let html = "<div class=\"screen\">";
+  // Round indicator (this round is complete)
+  html += "<div class=\"round-indicator\">";
+  for (let i = 1; i <= 3; i++) {
+    const cls = i <= r ? "complete" : "";
+    html += "<div class=\"round-dot " + cls + "\"></div>";
+  }
+  html += "</div>";
+
+  html += "<div class=\"card-eyebrow\" style=\"margin-bottom:8px;\">Round " + r + " Results \u00b7 Years " + (r*3 - 2) + "\u2013" + (r*3) + "</div>";
+  html += "<h1 style=\"font-size:26px;margin-bottom:18px;\">Cycle Outcome &amp; Portfolio Movement</h1>";
+
+  // Wildcard reveal — first
+  if (result.wildcard) {
+    const wcMap = {
+      "H1_SHOCK": { cls: "negative", title: "Market Shock in H1 Core Segment", body: "A sharp contraction has hit Arvika's industrial chemicals end-markets this cycle. A combination of demand collapse in textile exports and inventory destocking by paints customers has driven a 60% volume decline in H1 revenue this period. Recovery timelines are uncertain. The board notes the broader sector is experiencing similar pressure." },
+      "H1_REG": { cls: "negative", title: "Regulatory Hit Affecting H1 Operations", body: "A regulatory determination on legacy chemistry inputs has forced operational restructuring in core H1 plants this cycle. Compliance-related disruption has reduced H1 revenue by 40% this period. The leadership team is engaging with the relevant authority on transition pathways, but the impact on this cycle is material." },
+      "H2_TAIL": { cls: "positive", title: "Major Tailwind in Specialty Coatings Market", body: "An unanticipated step-change in demand has lifted the H2 specialty coatings segment this cycle. Global brand mandates have accelerated and a key competitor has exited the segment unexpectedly. H2 growth has been amplified by 20 percentage points this period beyond planned investment-led expansion." }
+    };
+    const wc = wcMap[result.wildcard];
+    html += "<div class=\"wildcard-panel " + wc.cls + "\">";
+    html += "<div class=\"wc-header\">\u26A1 Breaking \u2014 Market Intelligence Alert</div>";
+    html += "<h2>" + wc.title + "</h2>";
+    html += "<p>" + wc.body + "</p>";
+    html += "</div>";
+  }
+
+  // Bucket reveal
+  html += "<div class=\"card\">";
+  html += "<div class=\"card-eyebrow\">Investment Allocation \u2014 Final Figures</div>";
+  html += "<h3>Capital Deployed This Cycle</h3>";
+  html += "<table class=\"portfolio-table\" style=\"margin-top:10px;\">";
+  html += "<thead><tr><th>Horizon</th><th>Bucket</th><th class=\"num\">Amount</th></tr></thead><tbody>";
+  if (zeroInit || state.portfolio.h3.filter(i => i.status === "active").length === 0) {
+    // 2-way with medium split
+    html += "<tr><td><span class=\"pill pill-h1\">H1</span> Industrial Chemicals</td><td class=\"mono\" style=\"font-size:12px;\">" + sel.h1 + " + Medium auto-split</td><td class=\"num\">" + fmtCr(sel.h1Eff) + "</td></tr>";
+    html += "<tr><td><span class=\"pill pill-h2\">H2</span> Specialty Coatings</td><td class=\"mono\" style=\"font-size:12px;\">" + sel.h2 + " + Medium auto-split</td><td class=\"num\">" + fmtCr(sel.h2Eff) + "</td></tr>";
+    html += "<tr><td><span class=\"pill pill-h3\">H3</span> Initiatives</td><td class=\"mono\" style=\"font-size:12px;\">Zero</td><td class=\"num\">\u20B90</td></tr>";
+  } else {
+    html += "<tr><td><span class=\"pill pill-h1\">H1</span> Industrial Chemicals</td><td class=\"mono\" style=\"font-size:12px;\">" + sel.h1 + "</td><td class=\"num\">" + fmtCr(sel.h1Eff) + "</td></tr>";
+    html += "<tr><td><span class=\"pill pill-h2\">H2</span> Specialty Coatings</td><td class=\"mono\" style=\"font-size:12px;\">" + sel.h2 + "</td><td class=\"num\">" + fmtCr(sel.h2Eff) + "</td></tr>";
+    const activeCount = state.portfolio.h3.filter(i => i.status === "active" || i.status === "success").length;
+    const perInit = sel.h3 === "Zero" ? 0 : (sel.h3Eff / Math.max(1, state.portfolio.h3.filter(i => i.investHistory[r-1] === true || (r === 1 && sel.h3 !== "Zero")).length || 1));
+    html += "<tr><td><span class=\"pill pill-h3\">H3</span> Initiatives</td><td class=\"mono\" style=\"font-size:12px;\">" + sel.h3 + (sel.h3 !== "Zero" ? " (split equally)" : "") + "</td><td class=\"num\">" + fmtCr(sel.h3Eff) + "</td></tr>";
+  }
+  html += "</tbody></table>";
+  html += "</div>";
+
+  // H1 card
+  html += renderBUResultCard("H1", "Industrial Chemicals", "pill-h1", result.h1Before, state.portfolio.h1, result.h1Profit, "h1");
+  // H2 card
+  html += renderBUResultCard("H2", "Specialty Coatings", "pill-h2", result.h2Before, state.portfolio.h2, result.h2Profit, "h2");
+
+  // H3 cards
+  if (state.portfolio.h3.length === 0) {
+    html += "<div class=\"card\">";
+    html += "<div class=\"card-eyebrow\">H3 \u00b7 Board Intelligence \u2014 Revised Potential Estimates</div>";
+    html += "<p style=\"color:rgba(15,17,23,0.6);font-size:13.5px;\">No H3 initiatives under development.</p>";
+    html += "</div>";
+  } else {
+    state.portfolio.h3.forEach(init => {
+      html += renderH3ResultCard(init, result);
+    });
+  }
+
+  // Dividend card
+  html += "<div class=\"dividend-card\">";
+  html += "<div class=\"card-eyebrow\">Dividend &amp; Capital Position</div>";
+  html += "<h3>Capital Returns This Cycle</h3>";
+  if (result.zeroProfit) {
+    html += "<div class=\"warn-msg\" style=\"margin-top:8px;\">Round profit was zero or negative. No dividend has been declared regardless of selection. Next-cycle budget will be set at the lowest tier.</div>";
+  }
+  html += "<div class=\"dc-grid\">";
+  html += "<div class=\"metric\"><div class=\"label\">Dividend Policy</div><div class=\"value\" style=\"font-size:18px;\">" + result.div + "</div></div>";
+  html += "<div class=\"metric\"><div class=\"label\">Dividend Paid</div><div class=\"value\">" + fmtCr(result.divPaid) + "</div></div>";
+  html += "<div class=\"metric\"><div class=\"label\">Retained Profit</div><div class=\"value\">" + fmtCr(result.retained) + "</div></div>";
+  html += "<div class=\"metric\"><div class=\"label\">Cumulative Dividends</div><div class=\"value\">" + fmtCr(state.cumulativeDividends) + "</div></div>";
+  html += "</div>";
+  // Dividend signal
+  const divSig = computeDividendSignal(result, r);
+  if (divSig) html += "<div class=\"signal " + divSig.cls + "\" style=\"margin-top:14px;\">" + divSig.text + "</div>";
+  html += "<div style=\"margin-top:12px;font-family:'DM Mono',monospace;font-size:11.5px;color:rgba(15,17,23,0.7);\">NEXT CYCLE INVESTMENT BUDGET: <strong style=\"color:var(--ink);\">" + fmtCr(result.nextBudget) + "</strong></div>";
+  html += "</div>";
+
+  // Valuation card
+  const tsr = state.cumulativeDividends + result.valuation.total;
+  html += "<div class=\"valuation-card\">";
+  html += "<div class=\"vc-label\">Total Portfolio Valuation</div>";
+  html += "<div class=\"vc-value\">" + fmtCr(result.valuation.total) + "</div>";
+  html += "<div class=\"vc-breakdown\">";
+  html += "<div class=\"vc-cell\"><div class=\"lbl\">H1</div><div class=\"val\">" + fmtCr(result.valuation.h1) + "</div></div>";
+  html += "<div class=\"vc-cell\"><div class=\"lbl\">H2</div><div class=\"val\">" + fmtCr(result.valuation.h2) + "</div></div>";
+  html += "<div class=\"vc-cell\"><div class=\"lbl\">H3</div><div class=\"val\">" + fmtCr(result.valuation.h3) + "</div></div>";
+  html += "<div class=\"vc-cell\"><div class=\"lbl\">TSR To Date</div><div class=\"val\">" + fmtCr(tsr) + "</div></div>";
+  html += "</div></div>";
+
+  // Next button
+  html += "<div style=\"margin-top:28px;display:flex;justify-content:flex-end;\">";
+  if (r < 3) {
+    html += "<button class=\"btn-primary\" onclick=\"advanceToNextRound(" + result.nextBudget + ")\">Proceed to Cycle " + (r + 1) + "</button>";
+  } else {
+    html += "<button class=\"btn-gold\" onclick=\"screenFinal()\">View Final Board Report</button>";
+  }
+  html += "</div></div>";
+
+  show(html);
+}
+
+function renderBUResultCard(buCode, buName, pillCls, before, after, profit, key) {
+  const revDelta = after.rev - before.rev;
+  const revPct = before.rev > 0 ? (revDelta / before.rev) * 100 : 0;
+  const marginDelta = after.margin - before.margin;
+  let html = "<div class=\"bu-card\">";
+  html += "<div class=\"bu-head\"><div class=\"bu-title\"><span class=\"pill " + pillCls + "\">" + buCode + "</span> &nbsp;" + buName + "</div></div>";
+  html += "<div class=\"metrics-row\">";
+  html += "<div class=\"metric\"><div class=\"label\">Revenue</div><div class=\"value\">" + fmtCr(after.rev) + "</div><div class=\"delta " + (revDelta > 0 ? "delta-up" : revDelta < 0 ? "delta-down" : "delta-flat") + "\">" + (revDelta >= 0 ? "+" : "") + fmtCr(Math.abs(revDelta) * Math.sign(revDelta)) + " \u00b7 " + (revPct >= 0 ? "+" : "") + revPct.toFixed(1) + "%</div></div>";
+  html += "<div class=\"metric\"><div class=\"label\">Margin</div><div class=\"value\">" + after.margin.toFixed(1) + "%</div><div class=\"delta " + (marginDelta > 0 ? "delta-up" : marginDelta < 0 ? "delta-down" : "delta-flat") + "\">" + (marginDelta >= 0 ? "+" : "") + marginDelta.toFixed(1) + "pp</div></div>";
+  html += "<div class=\"metric\"><div class=\"label\">Profit</div><div class=\"value\">" + fmtCr(profit) + "</div></div>";
+  html += "</div>";
+
+  // H1 exit warning
+  if (key === "h1" && after.margin <= 1.0) {
+    html += "<div class=\"error-msg\" style=\"margin-bottom:10px;\"><strong>Approaching exit threshold:</strong> H1 margin has compressed to " + after.margin.toFixed(1) + "%. The business is approaching loss-making territory and the board may need to consider divestment scenarios.</div>";
+  }
+
+  // Signal
+  const sig = key === "h1" ? computeH1Signal(revPct) : computeH2Signal(revPct);
+  if (sig) html += "<div class=\"signal " + sig.cls + "\">" + sig.text + "</div>";
+  html += "</div>";
+  return html;
+}
+
+function computeH1Signal(declinePct) {
+  const dec = Math.abs(declinePct);
+  if (declinePct >= 0) {
+    return { cls: "signal-amber", text: "\uD83D\uDFE1 Revenue base held this cycle \u2014 underlying pressures remain but did not fully materialise in this period" };
+  }
+  if (dec > 40) return { cls: "signal-red", text: "\uD83D\uDD34 Significant volume contraction this cycle \u2014 market conditions have deteriorated materially" };
+  if (dec >= 20) return { cls: "signal-red", text: "\uD83D\uDD34 Revenue base has contracted sharply \u2014 structural demand shifts appear to be accelerating" };
+  if (dec >= 10) return { cls: "signal-amber", text: "\uD83D\uDFE1 Continued decline in line with broader market trends \u2014 trajectory remains negative" };
+  return { cls: "signal-amber", text: "\uD83D\uDFE1 Revenue decline has moderated this cycle \u2014 underlying pressures remain" };
+}
+function computeH2Signal(growthPct) {
+  if (growthPct > 20) return { cls: "signal-green", text: "\uD83D\uDFE2 Growth has exceeded expectations this cycle \u2014 the business is scaling meaningfully" };
+  if (growthPct >= 10) return { cls: "signal-green", text: "\uD83D\uDFE2 Solid growth trajectory \u2014 the business is gaining commercial ground" };
+  if (growthPct >= 5) return { cls: "signal-amber", text: "\uD83D\uDFE1 Growth has come in below prior-cycle rates \u2014 the pace of scaling is worth watching" };
+  return { cls: "signal-red", text: "\uD83D\uDD34 Growth has been softer than the investment thesis anticipated \u2014 market dynamics warrant a closer look" };
+}
+
+function renderH3ResultCard(init, result) {
+  const roll = result.h3Rolls.find(r => r.id === init.id);
+  let html = "<div class=\"bu-card\">";
+  html += "<div class=\"bu-head\"><div class=\"bu-title\"><span class=\"pill pill-h3\">H3</span> &nbsp;" + init.name + "</div>";
+  let statusPill = "";
+  if (init.status === "success") statusPill = "<span class=\"pill pill-success\">Commercial</span>";
+  else if (init.status === "failed") statusPill = "<span class=\"pill pill-closed\">Written off</span>";
+  else if (init.status === "closed") statusPill = "<span class=\"pill pill-closed\">Closed</span>";
+  else statusPill = "<span class=\"pill pill-h3\">In Development</span>";
+  html += "<div>" + statusPill + "</div></div>";
+
+  // Revised estimate panel (only for active or just-resolved)
+  if (init.status === "active" && init.revisedSentiment) {
+    let sigCls = "delta-flat";
+    if (init.revisedDirection === "up") sigCls = "delta-up";
+    else if (init.revisedDirection === "down") sigCls = "delta-down";
+    html += "<div class=\"revised-panel\">";
+    html += "<div class=\"rp-label\">Board Intelligence \u2014 Revised Potential Estimate</div>";
+    html += "<div class=\"rp-line\"><span class=\"rp-original\">" + fmtCr(init.origSizeMin) + " \u2013 " + fmtCr(init.origSizeMax) + "</span> &rarr; <strong>" + fmtCr(init.curSizeMin) + " \u2013 " + fmtCr(init.curSizeMax) + "</strong></div>";
+    html += "<div class=\"rp-sentiment " + sigCls + "\">" + init.revisedSentiment + "</div>";
+    html += "</div>";
+  }
+
+  // Outcome
+  if (roll) {
+    if (roll.outcome === "success") {
+      html += "<div class=\"signal signal-green\" style=\"margin-top:10px;\">\uD83D\uDFE2 Breakthrough achieved \u2014 new growth engine coming online. Initial commercial revenue: <strong>" + fmtCr(init.revenue) + "</strong></div>";
+    } else if (roll.outcome === "failed") {
+      html += "<div class=\"signal signal-red\" style=\"margin-top:10px;\">\uD83D\uDD34 Initiative did not achieve commercial viability \u2014 written off permanently</div>";
+    } else if (roll.outcome === "closed") {
+      html += "<div class=\"signal signal-red\" style=\"margin-top:10px;\">\uD83D\uDD34 Initiative closed \u2014 investment written off</div>";
+    } else if (roll.outcome === "miss") {
+      html += "<div class=\"signal signal-amber\" style=\"margin-top:10px;\">\uD83D\uDFE1 Initiative is progressing through its development phase \u2014 commercial milestones not yet achieved</div>";
+    } else if (roll.outcome === "progressing") {
+      const sustained = init.investHistory.filter(x => x).length >= 2;
+      if (sustained) html += "<div class=\"signal signal-amber\" style=\"margin-top:10px;\">\uD83D\uDFE1 Initiative has received sustained funding \u2014 early indicators are emerging</div>";
+      else html += "<div class=\"signal signal-amber\" style=\"margin-top:10px;\">\uD83D\uDFE1 Initiative is progressing through its development phase</div>";
+    }
+  }
+
+  // Active and already commercial: show revenue
+  if (init.status === "success") {
+    html += "<div class=\"metrics-row\" style=\"margin-top:12px;\">";
+    html += "<div class=\"metric\"><div class=\"label\">Commercial Revenue</div><div class=\"value\">" + fmtCr(init.revenue) + "</div></div>";
+    html += "<div class=\"metric\"><div class=\"label\">Margin</div><div class=\"value\">5.0%</div></div>";
+    html += "<div class=\"metric\"><div class=\"label\">Profit Contribution</div><div class=\"value\">" + fmtCr(init.revenue * 0.05) + "</div></div>";
+    html += "</div>";
+  }
+  html += "</div>";
+  return html;
+}
+
+function computeDividendSignal(result, round) {
+  const div = result.div;
+  // Profit trend
+  let trend = "flat";
+  if (round > 1) {
+    const prior = state.rounds[round - 2].profit;
+    if (result.profit < prior * 0.85) trend = "decline";
+    else if (result.profit > prior * 1.05) trend = "growth";
+  }
+  // Investment strength on H2/H3 last cycle
+  const h2OrH3Strong = (result.h2 === "High" || result.h2 === "Medium" || result.h3 === "High" || result.h3 === "Medium");
+  if (div === "High" && trend === "decline") {
+    return { cls: "signal-red", text: "\uD83D\uDD34 Significant capital returned to shareholders against a backdrop of declining profit \u2014 the reinvestment thesis bears closer scrutiny" };
+  }
+  if (div === "High") {
+    return { cls: "signal-amber", text: "\uD83D\uDFE1 Substantial returns delivered to shareholders \u2014 reinvestment headroom in future cycles is correspondingly tighter" };
+  }
+  if (div === "Medium") {
+    return { cls: "signal-amber", text: "\uD83D\uDFE1 Balanced capital allocation \u2014 measured shareholder return alongside reinvestment" };
+  }
+  if (div === "Low" && h2OrH3Strong) {
+    return { cls: "signal-green", text: "\uD83D\uDFE2 Capital retained for reinvestment \u2014 supports continued portfolio transition" };
+  }
+  return { cls: "signal-amber", text: "\uD83D\uDFE1 Capital retained but the reinvestment thesis remains to be demonstrated in subsequent rounds" };
+}
+
+function advanceToNextRound(nextBudget) {
+  state.round += 1;
+  state.currentBudget = nextBudget;
+  updateHeader();
+  screenAllocation();
+}
+
+// ============================================================
+//  SCREEN 5 — FINAL
+// ============================================================
+function screenFinal() {
+  const finalVal = computeValuation();
+  const tsr = state.cumulativeDividends + finalVal.total;
+  const h3Successes = state.portfolio.h3.filter(i => i.status === "success").length;
+
+  // CAGR computations for cross-team comparison panel
+  const startRev = state.startTotalRevenue;
+  const endRev = state.portfolio.h1.rev + state.portfolio.h2.rev +
+    state.portfolio.h3.filter(i => i.status === "success").reduce((s, i) => s + i.revenue, 0);
+  const startProfit = state.startTotalProfit;
+  const endProfit = state.rounds[2].profit;
+  const startValuation = state.portfolio.h1.startRev * 0.6 + state.portfolio.h2.startRev * 5;
+  const revenueCAGR = cagr(startRev, endRev, 9);
+  const profitCAGR = cagr(startProfit, endProfit, 9);
+  const valuationCAGR = cagr(startValuation, finalVal.total, 9);
+  const tsrCAGR = cagr(startValuation, tsr, 9);
+  // Store on state for submission
+  state.cagrRevenue = revenueCAGR;
+  state.cagrProfit = profitCAGR;
+  state.cagrValuation = valuationCAGR;
+  state.cagrTsr = tsrCAGR;
+  let tier, tierIcon, tierTitle, tierBody;
+  const h1Share = finalVal.h1 / Math.max(1, finalVal.total);
+  const highDivCount = state.rounds.filter(r => r.div === "High").length;
+  const h3Failed = state.portfolio.h3.filter(i => i.status === "failed").length;
+  const h3Closed = state.portfolio.h3.filter(i => i.status === "closed").length;
+
+  if (finalVal.total > 25000 && h3Successes >= 1) {
+    tier = "t1"; tierIcon = "\uD83C\uDFC6";
+    tierTitle = "Transformational Portfolio \u2014 Arvika 2034";
+    tierBody = "The portfolio has fundamentally repositioned over the review period. Sustained H3 commitment has produced " + h3Successes + " new commercial growth platform" + (h3Successes > 1 ? "s" : "") + ", and the bridge business has scaled meaningfully alongside the legacy core. Final portfolio valuation stands at " + fmtCr(finalVal.total) + "." + (tsr > finalVal.total * 1.15 ? " Total shareholder return of " + fmtCr(tsr) + " reflects strong returns delivered alongside the reinvestment programme." : " The leadership team has prioritised long-horizon value creation, and the market-implied valuation reflects that conviction.");
+  } else if (finalVal.total > 18000) {
+    tier = "t2"; tierIcon = "\u2705";
+    tierTitle = "Strong Portfolio Performance \u2014 Arvika 2034";
+    tierBody = "The portfolio has navigated the transition with discipline. Core defence and growth investment have been balanced, with final valuation of " + fmtCr(finalVal.total) + "." + (h3Successes > 0 ? " The H3 programme delivered " + h3Successes + " commercial success" + (h3Successes > 1 ? "es" : "") + ", strengthening the long-term portfolio position." : (h3Failed + h3Closed > 0 ? " H3 outcomes were mixed \u2014 the initiatives pursued did not all reach commercial viability, but the core portfolio held its ground." : " H3 outcomes did not materialise in this period.")) + (highDivCount >= 2 ? " The decision to pay high dividends in multiple cycles meant reinvestment headroom was tighter than it might have been." : "");
+  } else if (finalVal.total > 12000) {
+    tier = "t3"; tierIcon = "\u26A0\uFE0F";
+    tierTitle = "Adequate but Vulnerable \u2014 Arvika 2034";
+    tierBody = "The portfolio has come through the period intact but with limited transformation. Final valuation of " + fmtCr(finalVal.total) + " is acceptable in the near term but leaves the business exposed to continued H1 contraction." + (h1Share > 0.7 ? " H1 still represents over 70% of portfolio value, indicating significant concentration risk going forward." : "") + (h3Successes > 0 ? " The H3 programme produced " + h3Successes + " commercial outcome, providing some optionality." : (h3Failed + h3Closed > 0 ? " H3 initiatives did not deliver commercial outcomes during the review period." : " No H3 progress was realised.")) + (highDivCount >= 2 ? " Repeated high-dividend choices compounded the reinvestment shortfall." : "");
+  } else {
+    tier = "t4"; tierIcon = "\uD83D\uDD34";
+    tierTitle = "Strategic Underperformance \u2014 Arvika 2034";
+    tierBody = "The portfolio has materially underperformed the strategic ambition set at the start of the review period. Final valuation of " + fmtCr(finalVal.total) + " and TSR of " + fmtCr(tsr) + " indicate that the transition was not executed effectively." + (h3Failed + h3Closed > 0 ? " H3 initiatives were either closed or written off, eliminating the optionality the corporate development team had identified." : "") + (h1Share > 0.7 ? " The portfolio remains dominated by a declining H1 base." : "") + (highDivCount >= 2 ? " High dividend payouts taken under declining profits compounded the capital constraint, accelerating the structural problem." : "") + " The board will need to consider whether a more substantive intervention is required.";
+  }
+
+  let html = "<div class=\"screen\">";
+
+  html += "<div class=\"verdict-card " + tier + "\">";
+  html += "<div style=\"font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.16em;opacity:0.85;margin-bottom:8px;\">BOARD STRATEGIC REVIEW \u00b7 FINAL VERDICT</div>";
+  html += "<h2>" + tierIcon + " " + tierTitle + "</h2>";
+  html += "<p>" + tierBody + "</p>";
+  html += "</div>";
+
+  // Scorecard
+  html += "<div class=\"section-heading\">Final Scorecard</div>";
+  html += "<div class=\"scorecard\">";
+  html += "<div class=\"score-cell primary\"><div class=\"sc-label\">Portfolio Valuation (2034)</div><div class=\"sc-value\">" + fmtCr(finalVal.total) + "</div><div style=\"font-family:'DM Mono',monospace;font-size:11px;color:var(--gold-light);margin-top:8px;\">Forward-looking, market-implied value</div></div>";
+  html += "<div class=\"score-cell secondary\"><div class=\"sc-label\">Total Shareholder Return</div><div class=\"sc-value\">" + fmtCr(tsr) + "</div><div style=\"font-family:'DM Mono',monospace;font-size:11px;color:rgba(15,17,23,0.6);margin-top:8px;\">Cumulative dividends (" + fmtCr(state.cumulativeDividends) + ") + final valuation</div></div>";
+  html += "</div>";
+  html += "<p class=\"scorecard-note\">" + (finalVal.total > tsr ? "Portfolio Valuation exceeds TSR \u2014 the leadership team prioritised reinvestment over near-term distribution." : "TSR exceeds Portfolio Valuation \u2014 substantial capital has been returned to shareholders relative to ending portfolio value.") + "</p>";
+
+  // CAGR cross-team comparison panel
+  html += "<div class=\"card\" style=\"margin-top:20px;\">";
+  html += "<div class=\"card-eyebrow\">Cross-Team Comparison \u00b7 Normalised for Starting Position</div>";
+  html += "<h3>Portfolio Performance \u2014 CAGR over 9 Years</h3>";
+  html += "<p class=\"text-mute\" style=\"margin-bottom:16px;\">Compounded annual growth rates allow comparison across teams who began with different starting portfolios. Wildcard events and H3 outcomes introduce variance that CAGR does not adjust for.</p>";
+  html += "<div style=\"display:grid;grid-template-columns:repeat(4,1fr);gap:14px;\">";
+  html += "<div class=\"metric\"><div class=\"label\">Revenue CAGR</div><div class=\"value\" style=\"font-size:26px;color:" + (revenueCAGR !== null && revenueCAGR >= 0 ? "var(--green)" : "var(--red)") + ";\">" + fmtCagr(revenueCAGR) + "</div><div class=\"text-mute\" style=\"font-size:11px;margin-top:4px;\">" + fmtCr(startRev) + " \u2192 " + fmtCr(Math.round(endRev)) + "</div></div>";
+  html += "<div class=\"metric\"><div class=\"label\">Profit CAGR</div><div class=\"value\" style=\"font-size:26px;color:" + (profitCAGR !== null && profitCAGR >= 0 ? "var(--green)" : "var(--red)") + ";\">" + fmtCagr(profitCAGR) + "</div><div class=\"text-mute\" style=\"font-size:11px;margin-top:4px;\">" + fmtCr(Math.round(startProfit)) + " \u2192 " + fmtCr(Math.round(endProfit)) + "</div></div>";
+  html += "<div class=\"metric\"><div class=\"label\">Valuation CAGR</div><div class=\"value\" style=\"font-size:26px;color:" + (valuationCAGR !== null && valuationCAGR >= 0 ? "var(--green)" : "var(--red)") + ";\">" + fmtCagr(valuationCAGR) + "</div><div class=\"text-mute\" style=\"font-size:11px;margin-top:4px;\">" + fmtCr(Math.round(startValuation)) + " \u2192 " + fmtCr(Math.round(finalVal.total)) + "</div></div>";
+  html += "<div class=\"metric\"><div class=\"label\">TSR CAGR</div><div class=\"value\" style=\"font-size:26px;color:" + (tsrCAGR !== null && tsrCAGR >= 0 ? "var(--green)" : "var(--red)") + ";\">" + fmtCagr(tsrCAGR) + "</div><div class=\"text-mute\" style=\"font-size:11px;margin-top:4px;\">" + fmtCr(Math.round(startValuation)) + " \u2192 " + fmtCr(Math.round(tsr)) + "</div></div>";
+  html += "</div></div>";
+
+  // Final portfolio table
+  html += "<div class=\"card\" style=\"margin-top:24px;\">";
+  html += "<div class=\"card-eyebrow\">Final Portfolio Composition</div>";
+  html += "<h3>Arvika in 2034</h3>";
+  html += "<table class=\"portfolio-table\">";
+  html += "<thead><tr><th>Business</th><th class=\"num\">Revenue</th><th class=\"num\">Margin</th><th class=\"num\">Profit</th><th class=\"num\">Valuation</th></tr></thead><tbody>";
+  html += "<tr><td><span class=\"pill pill-h1\">H1</span> Industrial Chemicals</td><td class=\"num\">" + fmtCr(state.portfolio.h1.rev) + "</td><td class=\"num\">" + state.portfolio.h1.margin.toFixed(1) + "%</td><td class=\"num\">" + fmtCr(state.portfolio.h1.rev * state.portfolio.h1.margin / 100) + "</td><td class=\"num\">" + fmtCr(finalVal.h1) + "</td></tr>";
+  html += "<tr><td><span class=\"pill pill-h2\">H2</span> Specialty Coatings</td><td class=\"num\">" + fmtCr(state.portfolio.h2.rev) + "</td><td class=\"num\">" + state.portfolio.h2.margin.toFixed(1) + "%</td><td class=\"num\">" + fmtCr(state.portfolio.h2.rev * state.portfolio.h2.margin / 100) + "</td><td class=\"num\">" + fmtCr(finalVal.h2) + "</td></tr>";
+  state.portfolio.h3.forEach(init => {
+    let revStr = "\u2014", marStr = "\u2014", profStr = "\u2014", valStr = "\u2014";
+    let pill = "pill-h3";
+    if (init.status === "success") {
+      pill = "pill-success";
+      revStr = fmtCr(init.revenue); marStr = "5.0%"; profStr = fmtCr(init.revenue * 0.05); valStr = fmtCr(init.revenue * 3);
+    } else if (init.status === "failed") { pill = "pill-closed"; valStr = "Written off"; }
+    else if (init.status === "closed") { pill = "pill-closed"; valStr = "Closed"; }
+    else { valStr = "Active (optionality)"; }
+    html += "<tr><td><span class=\"pill " + pill + "\">H3</span> " + init.name + "</td><td class=\"num\">" + revStr + "</td><td class=\"num\">" + marStr + "</td><td class=\"num\">" + profStr + "</td><td class=\"num\">" + valStr + "</td></tr>";
+  });
+  html += "</tbody>";
+  html += "<tfoot><tr><td colspan=\"4\">Total Portfolio Valuation</td><td class=\"num\">" + fmtCr(finalVal.total) + "</td></tr></tfoot>";
+  html += "</table>";
+  html += "</div>";
+
+  // Game log
+  html += "<div class=\"card\">";
+  html += "<div class=\"card-eyebrow\">Complete Game Log</div>";
+  html += "<h3>Round-by-Round Decisions &amp; Outcomes</h3>";
+  html += "<div style=\"overflow-x:auto;\"><table class=\"game-log\">";
+  html += "<thead><tr><th>Round</th><th>Budget</th><th>H1</th><th>H2</th><th>H3</th><th>Div</th><th>Wildcard</th><th>H3 Roll</th><th>Div Paid</th><th>Valuation</th></tr></thead><tbody>";
+  state.rounds.forEach(r => {
+    const wcStr = r.wildcard ? r.wildcard.replace("_", " ") : "\u2014";
+    const rollStr = r.h3Rolls.length === 0 ? "\u2014" : r.h3Rolls.map(rl => rl.id + ":" + rl.outcome).join(", ");
+    html += "<tr><td class=\"num\">" + r.round + "</td><td class=\"num\">" + fmt(r.budget) + "</td><td>" + r.h1 + "</td><td>" + r.h2 + "</td><td>" + r.h3 + "</td><td>" + r.div + "</td><td>" + wcStr + "</td><td>" + rollStr + "</td><td class=\"num\">" + fmt(r.divPaid) + "</td><td class=\"num\">" + fmt(r.valuation.total) + "</td></tr>";
+  });
+  html += "</tbody></table></div>";
+  html += "</div>";
+
+  // Submission
+  html += "<div class=\"card\" style=\"background:var(--cream);\">";
+  html += "<div class=\"card-eyebrow\">Facilitator Submission</div>";
+  html += "<h3>Submit Results for Debrief</h3>";
+  html += "<p class=\"text-mute\" style=\"margin-bottom:14px;\">Submit your team's run to the facilitator. This captures all decisions and outcomes for the post-simulation debrief discussion.</p>";
+  html += "<button class=\"btn-gold\" onclick=\"submitToFacilitator()\">Submit to Facilitator</button>";
+  html += "<div id=\"submitStatus\"></div>";
+  html += "</div>";
+
+  html += "</div>";
+  show(html);
+}
+
+// ============================================================
+//  SUBMISSION
+// ============================================================
+function submitToFacilitator() {
+  const statusBox = document.getElementById("submitStatus");
+  // Guard against placeholder URL
+  if (GOOGLE_SHEET_URL.indexOf("REPLACE_WITH") !== -1) {
+    statusBox.innerHTML = "<div class=\"submit-status warn\">Submission endpoint not configured. The facilitator must set the Google Sheet web app URL before submissions can be recorded. Please notify the facilitator.</div>";
+    return;
+  }
+  const finalVal = computeValuation();
+  const tsr = state.cumulativeDividends + finalVal.total;
+  const params = {
+    team: state.team,
+    ts: new Date().toISOString(),
+    finalVal: Math.round(finalVal.total),
+    tsr: Math.round(tsr),
+    totalDividends: Math.round(state.cumulativeDividends),
+    startH1Rev: state.portfolio.h1.startRev,
+    startH1Margin: state.portfolio.h1.startMargin,
+    startH1Profit: Math.round(state.startH1Profit),
+    startH2Rev: state.portfolio.h2.startRev,
+    startH2Margin: state.portfolio.h2.startMargin,
+    startH2Profit: Math.round(state.startH2Profit),
+    startTotalRevenue: state.startTotalRevenue,
+    startTotalProfit: Math.round(state.startTotalProfit),
+    portfolioProfile: state.portfolioProfile,
+    h3Count: state.drawn.length,
+    h3Initiatives: state.drawn.map(d => d.id).join("|"),
+    h3Types: state.drawn.map(d => d.type).join("|"),
+    h3Selected: state.selected.join("|"),
+    initiatives: state.portfolio.h3.map(i => i.id).join("|"),
+    h3status: state.portfolio.h3.map(i => i.id + ":" + i.status + (i.status === "success" ? ":" + Math.round(i.revenue) : "")).join("|"),
+    h1Final: Math.round(state.portfolio.h1.rev) + "@" + state.portfolio.h1.margin.toFixed(1),
+    h2Final: Math.round(state.portfolio.h2.rev) + "@" + state.portfolio.h2.margin.toFixed(1),
+    revenueCAGR: state.cagrRevenue !== null && state.cagrRevenue !== undefined ? state.cagrRevenue.toFixed(1) : "na",
+    profitCAGR: state.cagrProfit !== null && state.cagrProfit !== undefined ? state.cagrProfit.toFixed(1) : "na",
+    valuationCAGR: state.cagrValuation !== null && state.cagrValuation !== undefined ? state.cagrValuation.toFixed(1) : "na",
+    tsrCAGR: state.cagrTsr !== null && state.cagrTsr !== undefined ? state.cagrTsr.toFixed(1) : "na"
+  };
+  state.rounds.forEach((rd, idx) => {
+    const n = idx + 1;
+    params["r" + n + "budget"] = rd.budget;
+    params["r" + n + "h1"] = rd.h1;
+    params["r" + n + "h2"] = rd.h2;
+    params["r" + n + "h3"] = rd.h3;
+    params["r" + n + "div"] = rd.div;
+    params["r" + n + "wc"] = rd.wildcard || "none";
+    params["r" + n + "roll"] = rd.h3Rolls.map(r => r.id + ":" + r.outcome).join(";");
+    params["r" + n + "divpaid"] = Math.round(rd.divPaid);
+    params["r" + n + "val"] = Math.round(rd.valuation.total);
+  });
+  const qs = Object.keys(params).map(k => encodeURIComponent(k) + "=" + encodeURIComponent(params[k])).join("&");
+
+  statusBox.innerHTML = "<div class=\"submit-status warn\">Submitting...</div>";
+
+  const img = new Image();
+  let done = false;
+  img.onload = img.onerror = function() {
+    if (!done) { done = true; showSubmitSuccess(); }
+  };
+  setTimeout(function() {
+    if (!done) { done = true; showSubmitSuccess(); }
+  }, 4000);
+  img.src = GOOGLE_SHEET_URL + (GOOGLE_SHEET_URL.indexOf("?") === -1 ? "?" : "&") + qs;
+}
+function showSubmitSuccess() {
+  const statusBox = document.getElementById("submitStatus");
+  if (statusBox) statusBox.innerHTML = "<div class=\"submit-status success\"><strong>Submitted.</strong> Your team's results have been recorded. Stand by for the facilitator debrief.</div>";
+}
+
+// ============================================================
+//  BOOT
+// ============================================================
+screenWelcome();
+
+</script>
+</body>
+</html>
